@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-br">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KYVENZA | AI Trainer</title>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#131313"/>
+<link rel="icon" href="assets/icons/favicon.ico"/>
+<link rel="apple-touch-icon" href="assets/icons/icon-180.png"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/kyvenza.css"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="min-h-screen pb-24">
+
+  <header class="flex items-center gap-3 px-5 py-4 border-b border-white/5">
+    <a href="home.html" class="text-xl">←</a>
+    <span class="font-display font-bold text-lg gradient-text">KYVENZA</span>
+  </header>
+
+  <main class="px-5 pt-6">
+    <p class="font-mono text-xs text-[#87957b] tracking-widest mb-1">PROTOCOLO DE OTIMIZAÇÃO</p>
+    <h1 class="font-display text-2xl font-bold mb-2">AI Trainer</h1>
+    <p class="text-sm text-[#bdcbae] mb-6">Responda abaixo para a IA montar seu treino deste mês.</p>
+
+    <!-- Aviso de limite (mostrado via JS se já gerou este mês) -->
+    <div id="aviso-limite" class="hidden glass-card neon-border-cyan rounded-xl p-5 mb-6">
+      <p class="font-display font-semibold mb-1">Você já gerou seu treino deste mês</p>
+      <p class="text-sm text-[#bdcbae] mb-4">Um novo treino fica disponível no início do próximo mês.</p>
+      <a href="treino.html" class="gradient-cta font-display font-semibold py-2.5 px-5 rounded-lg inline-block">VER TREINO ATUAL</a>
+    </div>
+
+    <form id="form-questionario" class="glass-card rounded-xl p-5 space-y-5">
+      <div>
+        <label class="font-mono text-xs text-[#87957b] tracking-wider block mb-2">OBJETIVO</label>
+        <select id="objetivo" required class="w-full bg-[#1b1b1b] border border-[#3e4a34] rounded-lg px-3 py-2.5 text-sm focus:border-[#00daf3] outline-none">
+          <option value="">Selecione...</option>
+          <option value="Hipertrofia">Hipertrofia (ganho de massa)</option>
+          <option value="Emagrecimento">Emagrecimento</option>
+          <option value="Condicionamento">Condicionamento físico geral</option>
+          <option value="Força">Ganho de força</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="font-mono text-xs text-[#87957b] tracking-wider block mb-2">NÍVEL</label>
+        <select id="nivel" required class="w-full bg-[#1b1b1b] border border-[#3e4a34] rounded-lg px-3 py-2.5 text-sm focus:border-[#00daf3] outline-none">
+          <option value="">Selecione...</option>
+          <option value="Iniciante">Iniciante</option>
+          <option value="Intermediário">Intermediário</option>
+          <option value="Avançado">Avançado</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="font-mono text-xs text-[#87957b] tracking-wider block mb-2">DIAS DISPONÍVEIS POR SEMANA</label>
+        <select id="dias_semana" required class="w-full bg-[#1b1b1b] border border-[#3e4a34] rounded-lg px-3 py-2.5 text-sm focus:border-[#00daf3] outline-none">
+          <option value="">Selecione...</option>
+          <option value="1">1 dia</option>
+          <option value="2">2 dias</option>
+          <option value="3">3 dias</option>
+          <option value="4">4 dias</option>
+          <option value="5">5 dias</option>
+          <option value="6">6 dias</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="font-mono text-xs text-[#87957b] tracking-wider block mb-2">EQUIPAMENTOS DISPONÍVEIS</label>
+        <input id="equipamentos" type="text" placeholder="Ex: halteres, barra, academia completa..."
+          class="w-full bg-[#1b1b1b] border border-[#3e4a34] rounded-lg px-3 py-2.5 text-sm focus:border-[#00daf3] outline-none placeholder:text-[#87957b]"/>
+      </div>
+
+      <div>
+        <label class="font-mono text-xs text-[#87957b] tracking-wider block mb-2">LESÕES OU RESTRIÇÕES (opcional)</label>
+        <input id="restricoes" type="text" placeholder="Ex: dor no joelho, hérnia lombar..."
+          class="w-full bg-[#1b1b1b] border border-[#3e4a34] rounded-lg px-3 py-2.5 text-sm focus:border-[#00daf3] outline-none placeholder:text-[#87957b]"/>
+      </div>
+
+      <div>
+        <label class="font-mono text-xs text-[#87957b] tracking-wider block mb-2">DESCREVA SUAS METAS OU OBSERVAÇÕES</label>
+        <textarea id="observacoes" rows="3" placeholder="Conte mais sobre o que você busca..."
+          class="w-full bg-[#1b1b1b] border border-[#3e4a34] rounded-lg px-3 py-2.5 text-sm focus:border-[#00daf3] outline-none placeholder:text-[#87957b] resize-none"></textarea>
+      </div>
+
+      <button type="submit" id="btn-gerar" class="w-full gradient-cta font-display font-semibold py-3 rounded-lg flex items-center justify-center gap-2">
+        <span id="btn-texto">GERAR TREINO</span>
+      </button>
+      <p id="erro" class="text-sm text-red-400 text-center"></p>
+    </form>
+  </main>
+
+<script src="js/supabase-client.js"></script>
+<script>
+  let alunoAtual = null;
+
+  (async () => {
+    alunoAtual = await protegerPaginaDoAluno();
+    if (!alunoAtual) return;
+
+    // Checa localmente se já existe treino este mês, só pra dar feedback rápido
+    // (a trava de verdade é sempre validada de novo no servidor)
+    const hoje = new Date();
+    const mesReferencia = new Date(Date.UTC(hoje.getUTCFullYear(), hoje.getUTCMonth(), 1)).toISOString().slice(0, 10);
+    const { data: treinoExistente } = await supabase
+      .from("treinos")
+      .select("id")
+      .eq("aluno_id", alunoAtual.id)
+      .eq("mes_referencia", mesReferencia)
+      .maybeSingle();
+
+    if (treinoExistente) {
+      document.getElementById("aviso-limite").classList.remove("hidden");
+      document.getElementById("form-questionario").classList.add("hidden");
+    }
+  })();
+
+  document.getElementById("form-questionario").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById("btn-gerar");
+    const btnTexto = document.getElementById("btn-texto");
+    const erroEl = document.getElementById("erro");
+    erroEl.textContent = "";
+    btn.disabled = true;
+    btnTexto.innerHTML = '<span class="spinner"></span> Gerando com IA...';
+
+    const payload = {
+      objetivo: document.getElementById("objetivo").value,
+      nivel: document.getElementById("nivel").value,
+      dias_semana: parseInt(document.getElementById("dias_semana").value, 10),
+      equipamentos: document.getElementById("equipamentos").value,
+      restricoes: document.getElementById("restricoes").value,
+      observacoes: document.getElementById("observacoes").value,
+    };
+
+    const { data: { session } } = await supabase.auth.getSession();
+
+    try {
+      const resp = await fetch(`${SUPABASE_URL}/functions/v1/gerar-treino`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const resultado = await resp.json();
+
+      if (!resp.ok) {
+        erroEl.textContent = resultado.erro || "Não foi possível gerar o treino. Tente novamente.";
+        btn.disabled = false;
+        btnTexto.textContent = "GERAR TREINO";
+        return;
+      }
+
+      window.location.href = "treino.html";
+    } catch (err) {
+      console.error(err);
+      erroEl.textContent = "Erro de conexão. Verifique sua internet e tente novamente.";
+      btn.disabled = false;
+      btnTexto.textContent = "GERAR TREINO";
+    }
+  });
+</script>
+</body>
+</html>

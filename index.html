@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-br">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KYVENZA | Entrar</title>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#131313"/>
+<link rel="icon" href="assets/icons/favicon.ico"/>
+<link rel="apple-touch-icon" href="assets/icons/icon-180.png"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/kyvenza.css"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center px-6">
+
+  <img src="assets/logo.png" alt="Kyvenza" class="w-24 h-24 rounded-full mb-6 neon-border-green"/>
+
+  <h1 class="font-display text-2xl font-bold mb-2 text-center">Bem-vindo ao <span class="gradient-text">Kyvenza</span></h1>
+  <p class="text-sm text-[#87957b] text-center mb-8 max-w-xs">Digite seu e-mail cadastrado na assinatura para receber o link de acesso.</p>
+
+  <form id="form-login" class="w-full max-w-sm space-y-4">
+    <input
+      type="email"
+      id="input-email"
+      required
+      placeholder="seu@email.com"
+      class="w-full bg-transparent border-b border-[#3e4a34] focus:border-[#00daf3] outline-none py-3 text-[#e2e2e2] placeholder:text-[#87957b] transition-colors"
+    />
+    <button
+      type="submit"
+      id="btn-enviar"
+      class="w-full gradient-cta font-display font-semibold py-3 rounded-lg flex items-center justify-center gap-2"
+    >
+      <span id="btn-texto">ENVIAR LINK DE ACESSO</span>
+    </button>
+  </form>
+
+  <p id="mensagem" class="text-sm text-center mt-6 max-w-xs"></p>
+
+  <p class="text-xs text-[#87957b] mt-10 text-center max-w-xs">
+    Ainda não é assinante? <a href="bloqueado.html" class="neon-text-cyan underline">Conheça o Kyvenza AI</a>
+  </p>
+
+<script src="js/supabase-client.js"></script>
+<script>
+  // Se já existe sessão ativa, manda direto pra home
+  (async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) window.location.href = "home.html";
+  })();
+
+  const form = document.getElementById("form-login");
+  const btn = document.getElementById("btn-enviar");
+  const btnTexto = document.getElementById("btn-texto");
+  const mensagem = document.getElementById("mensagem");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("input-email").value.trim();
+    btn.disabled = true;
+    btnTexto.innerHTML = '<span class="spinner"></span>';
+    mensagem.textContent = "";
+    mensagem.className = "text-sm text-center mt-6 max-w-xs";
+
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: window.location.origin + window.location.pathname.replace("index.html", "home.html") }
+      });
+
+      if (error) {
+        mensagem.textContent = "Não foi possível enviar o link: " + error.message;
+        mensagem.classList.add("text-red-400");
+      } else {
+        mensagem.textContent = "Link enviado! Confira sua caixa de entrada (e o spam) para acessar.";
+        mensagem.classList.add("text-[#76ff03]");
+      }
+    } catch (err) {
+      console.error(err);
+      mensagem.textContent = "Erro de conexão. Tente novamente em instantes.";
+      mensagem.classList.add("text-red-400");
+    } finally {
+      btn.disabled = false;
+      btnTexto.textContent = "ENVIAR LINK DE ACESSO";
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+/* =========================================================
+   KYVENZA — Design tokens (Kinetic Cyber-Fitness)
+   Extraído do export do Stitch, compartilhado por todas as telas
+   ========================================================= */
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.6; filter: blur(8px); }
+  50% { opacity: 1; filter: blur(12px); }
+}
+.ai-pulse { animation: pulse-glow 3s infinite ease-in-out; }
+
+.glass-card {
+  background: rgba(18, 18, 18, 0.7);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+.glass-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(103, 225, 0, 0.05) 0%, rgba(0, 218, 243, 0.05) 100%);
+  pointer-events: none;
+}
+
+.neon-border-green {
+  border: 1px solid rgba(103, 225, 0, 0.3);
+  box-shadow: 0 0 15px rgba(103, 225, 0, 0.1);
+}
+.neon-border-cyan {
+  border: 1px solid rgba(0, 218, 243, 0.3);
+  box-shadow: 0 0 15px rgba(0, 218, 243, 0.1);
+}
+.neon-text-cyan {
+  color: #00daf3;
+  text-shadow: 0 0 8px rgba(0, 218, 243, 0.5);
+}
+.gradient-cta {
+  background: linear-gradient(90deg, #76ff03 0%, #00e5ff 100%);
+  color: #000;
+}
+.gradient-text {
+  background: linear-gradient(90deg, #76ff03 0%, #00e5ff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+body {
+  background-color: #000000;
+  color: #e2e2e2;
+  -webkit-font-smoothing: antialiased;
+  font-family: 'Geist', sans-serif;
+}
+.font-display { font-family: 'Space Grotesk', sans-serif; }
+.font-mono { font-family: 'JetBrains Mono', monospace; }
+
+/* Loading spinner simples usado em botões durante chamadas assíncronas */
+.spinner {
+  width: 18px; height: 18px;
+  border: 2px solid rgba(0,0,0,0.3);
+  border-top-color: #000;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Estado vazio de vídeo ainda não cadastrado */
+.video-em-breve {
+  display: flex; align-items: center; justify-content: center;
+  height: 100%; width: 100%;
+  background: #1b1b1b;
+  color: #87957b;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}

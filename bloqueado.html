@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-br">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KYVENZA | Kyvenza AI</title>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#131313"/>
+<link rel="icon" href="assets/icons/favicon.ico"/>
+<link rel="apple-touch-icon" href="assets/icons/icon-180.png"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;900&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/kyvenza.css"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="min-h-screen px-5 py-8">
+
+  <div class="flex justify-center mb-6">
+    <span class="font-mono text-xs bg-[#1f1f1f] border border-[#3e4a34] rounded-full px-3 py-1 text-[#76ff03]">● PROTOCOLO DE OTIMIZAÇÃO NEURAL</span>
+  </div>
+
+  <h1 class="font-display text-3xl font-black text-center leading-tight mb-3">
+    Desbloqueie o poder do<br/><span class="gradient-text">Kyvenza AI</span>
+  </h1>
+  <p class="text-sm text-[#bdcbae] text-center max-w-sm mx-auto mb-8">
+    Treinos personalizados por IA, gerados especialmente para o seu objetivo, nível e equipamentos disponíveis.
+  </p>
+
+  <section class="glass-card rounded-xl p-5 max-w-sm mx-auto mb-6">
+    <h2 class="font-display font-semibold text-lg mb-4">O que você recebe</h2>
+    <ul class="space-y-3 text-sm">
+      <li class="flex gap-2"><span class="text-[#76ff03]">✓</span> Treino novo todo mês, montado por IA a partir do seu questionário</li>
+      <li class="flex gap-2"><span class="text-[#76ff03]">✓</span> Vídeo explicativo de cada exercício</li>
+      <li class="flex gap-2"><span class="text-[#76ff03]">✓</span> Histórico completo dos seus treinos anteriores</li>
+    </ul>
+  </section>
+
+  <section class="max-w-sm mx-auto" id="secao-planos">
+    <p class="text-sm text-[#87957b] text-center font-mono">Carregando planos...</p>
+  </section>
+
+  <p class="text-xs text-[#87957b] text-center mt-6">Pagamento seguro via Mercado Pago. Cancele quando quiser.</p>
+
+  <p class="text-xs text-[#87957b] text-center mt-8">
+    Já é assinante e caiu aqui por engano? <a href="index.html" class="neon-text-cyan underline">Fazer login</a>
+  </p>
+
+<script src="js/supabase-client.js"></script>
+<script>
+  (async () => {
+    const { data: planos, error } = await supabase
+      .from("planos_assinatura")
+      .select("nome, valor, frequencia_meses, checkout_url")
+      .eq("ativo", true)
+      .order("frequencia_meses", { ascending: true });
+
+    const secao = document.getElementById("secao-planos");
+
+    if (error || !planos || planos.length === 0) {
+      secao.innerHTML = `<p class="text-sm text-[#87957b] text-center">Nenhum plano disponível no momento. Volte em breve.</p>`;
+      return;
+    }
+
+    // Destaca o plano de maior frequência (geralmente o de melhor custo-benefício)
+    const planoDestaque = planos.reduce((maior, p) => (p.frequencia_meses > maior.frequencia_meses ? p : maior), planos[0]);
+
+    secao.innerHTML = planos.map(p => {
+      const destaque = p === planoDestaque && planos.length > 1;
+      const precoMensalEquivalente = (p.valor / p.frequencia_meses).toFixed(2);
+      return `
+        <div class="glass-card ${destaque ? "neon-border-green" : ""} rounded-xl p-5 mb-4 relative">
+          ${destaque ? `<span class="absolute top-4 right-4 font-mono text-[10px] bg-[#76ff03] text-black px-2 py-0.5 rounded-full">MELHOR VALOR</span>` : ""}
+          <p class="font-mono text-xs text-[#87957b] uppercase mb-1">${p.nome}</p>
+          <p class="font-display text-2xl font-bold mb-1">R$ ${Number(p.valor).toFixed(2)}</p>
+          <p class="text-xs text-[#87957b]">equivalente a R$ ${precoMensalEquivalente}/mês</p>
+          <a href="${p.checkout_url}" class="gradient-cta font-display font-semibold py-3 rounded-lg w-full flex items-center justify-center mt-4">
+            ASSINAR AGORA
+          </a>
+        </div>
+      `;
+    }).join("");
+  })();
+</script>
+</body>
+</html>

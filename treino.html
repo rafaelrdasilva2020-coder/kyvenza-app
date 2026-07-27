@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-br">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KYVENZA | Treino</title>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#131313"/>
+<link rel="icon" href="assets/icons/favicon.ico"/>
+<link rel="apple-touch-icon" href="assets/icons/icon-180.png"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/kyvenza.css"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="min-h-screen pb-10">
+
+  <header class="flex items-center gap-3 px-5 py-4 border-b border-white/5">
+    <a href="home.html" class="text-xl">←</a>
+    <span class="font-display font-bold text-lg gradient-text">KYVENZA</span>
+  </header>
+
+  <main class="px-5 pt-6">
+    <div id="cabecalho-treino" class="mb-6">
+      <p class="text-sm text-[#87957b] font-mono">Carregando treino...</p>
+    </div>
+
+    <div id="lista-exercicios" class="space-y-4"></div>
+  </main>
+
+  <!-- Modal do player de vídeo -->
+  <div id="modal-video" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center px-4">
+    <div class="w-full max-w-md">
+      <div class="flex justify-between items-center mb-3">
+        <h3 id="modal-titulo" class="font-display font-semibold text-lg"></h3>
+        <button onclick="fecharModal()" class="text-2xl leading-none">×</button>
+      </div>
+      <div class="aspect-video rounded-lg overflow-hidden neon-border-green" id="modal-video-container"></div>
+    </div>
+  </div>
+
+<script src="js/supabase-client.js"></script>
+<script>
+  async function abrirModal(nomeExercicio, exercicioId, workoutxExerciseId, youtubeId) {
+    document.getElementById("modal-titulo").textContent = nomeExercicio;
+    const container = document.getElementById("modal-video-container");
+
+    if (workoutxExerciseId) {
+      container.innerHTML = `<div class="video-em-breve">CARREGANDO...</div>`;
+      document.getElementById("modal-video").classList.remove("hidden");
+
+      const { data: { session } } = await supabase.auth.getSession();
+      const urlProxy = `${SUPABASE_URL}/functions/v1/workoutx-gif-proxy?exercicio_id=${exercicioId}&token=${session.access_token}`;
+
+      container.innerHTML = `<img class="w-full h-full object-cover" src="${urlProxy}" alt="${nomeExercicio}"/>`;
+      return;
+    }
+
+    if (youtubeId) {
+      container.innerHTML = `<iframe class="w-full h-full" src="https://www.youtube.com/embed/${youtubeId}?autoplay=1" title="${nomeExercicio}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+    } else {
+      container.innerHTML = `<div class="video-em-breve">VÍDEO EM BREVE</div>`;
+    }
+    document.getElementById("modal-video").classList.remove("hidden");
+  }
+
+  function fecharModal() {
+    document.getElementById("modal-video").classList.add("hidden");
+    document.getElementById("modal-video-container").innerHTML = "";
+  }
+
+  (async () => {
+    const aluno = await protegerPaginaDoAluno();
+    if (!aluno) return;
+
+    const hoje = new Date();
+    const mesReferencia = new Date(Date.UTC(hoje.getUTCFullYear(), hoje.getUTCMonth(), 1)).toISOString().slice(0, 10);
+
+    const { data: treino } = await supabase
+      .from("treinos")
+      .select("id, nome, foco, duracao_estimada_min, nivel")
+      .eq("aluno_id", aluno.id)
+      .eq("mes_referencia", mesReferencia)
+      .maybeSingle();
+
+    const cabecalho = document.getElementById("cabecalho-treino");
+    const listaEl = document.getElementById("lista-exercicios");
+
+    if (!treino) {
+      cabecalho.innerHTML = `<p class="text-sm text-[#bdcbae]">Você ainda não gerou o treino deste mês.</p>`;
+      listaEl.innerHTML = `<a href="questionario.html" class="gradient-cta font-display font-semibold py-2.5 px-5 rounded-lg inline-block">GERAR TREINO</a>`;
+      return;
+    }
+
+    cabecalho.innerHTML = `
+      <div class="flex items-center gap-2 mb-1">
+        <span class="font-mono text-xs bg-[#1f1f1f] border border-[#3e4a34] rounded-full px-2 py-0.5 text-[#76ff03]">AI OPTIMIZED</span>
+      </div>
+      <h1 class="font-display text-2xl font-bold">${treino.nome}</h1>
+      <p class="text-sm text-[#bdcbae]">${treino.foco || ""} • ${treino.duracao_estimada_min || "--"} min • ${treino.nivel || ""}</p>
+    `;
+
+    const { data: exercicios } = await supabase
+      .from("treino_exercicios")
+      .select("id, nome_exercicio, series, reps, carga_sugerida, observacao, ordem, exercicio_id, exercicios(youtube_id, categoria, workoutx_exercise_id)")
+      .eq("treino_id", treino.id)
+      .order("ordem", { ascending: true });
+
+    if (!exercicios || exercicios.length === 0) {
+      listaEl.innerHTML = `<p class="text-sm text-[#87957b]">Nenhum exercício encontrado neste treino.</p>`;
+      return;
+    }
+
+    listaEl.innerHTML = exercicios.map(ex => {
+      const youtubeId = ex.exercicios?.youtube_id;
+      const workoutxExerciseId = ex.exercicios?.workoutx_exercise_id;
+      const categoria = ex.exercicios?.categoria || "";
+      return `
+        <div class="glass-card rounded-xl p-4 cursor-pointer" onclick='abrirModal(${JSON.stringify(ex.nome_exercicio)}, ${JSON.stringify(ex.exercicio_id)}, ${workoutxExerciseId ? JSON.stringify(workoutxExerciseId) : null}, ${youtubeId ? `"${youtubeId}"` : null})'>
+          ${categoria ? `<span class="font-mono text-xs text-[#76ff03] uppercase">${categoria}</span>` : ""}
+          <div class="flex items-center justify-between mt-1">
+            <div>
+              <p class="font-display font-semibold text-base">${ex.nome_exercicio}</p>
+              <p class="text-xs text-[#87957b]">${ex.observacao || ""}</p>
+            </div>
+            <div class="w-9 h-9 rounded-full border border-[#3e4a34] flex items-center justify-center text-[#76ff03]">▶</div>
+          </div>
+          <div class="flex gap-4 mt-3">
+            <div class="bg-[#1b1b1b] rounded-md px-3 py-2 flex-1">
+              <p class="font-mono text-[10px] text-[#87957b] uppercase">Séries x Reps</p>
+              <p class="font-mono text-sm">${ex.series || "--"} x ${ex.reps || "--"}</p>
+            </div>
+            <div class="bg-[#1b1b1b] rounded-md px-3 py-2 flex-1">
+              <p class="font-mono text-[10px] text-[#87957b] uppercase">Carga sugerida</p>
+              <p class="font-mono text-sm">${ex.carga_sugerida || "livre"}</p>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join("");
+  })();
+</script>
+</body>
+</html>
