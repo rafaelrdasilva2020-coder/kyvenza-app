@@ -8,14 +8,14 @@ const SUPABASE_URL = "https://bkjphntswqbcsrhismig.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_Qaug0jOTe5ExSa5GlgvalA_Lng42Ggb";
 
 // Carregado via <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /**
  * Garante que existe uma sessão ativa. Se não houver, redireciona pro login.
  * Retorna o usuário autenticado.
  */
 async function exigirSessao() {
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await supabaseClient.auth.getSession();
   if (!session) {
     window.location.href = "index.html";
     return null;
@@ -27,7 +27,7 @@ async function exigirSessao() {
  * Busca o registro do aluno correspondente ao usuário logado.
  */
 async function buscarAluno(authUserId) {
-  const { data, error } = await supabase
+  const { data, error } = await supabaseClient
     .from("alunos")
     .select("id, nome, email, status, plano")
     .eq("auth_user_id", authUserId)
@@ -56,7 +56,7 @@ async function protegerPaginaDoAluno() {
     // webhook do Mercado Pago) que ainda não tem auth_user_id vinculado.
     // Tenta vincular pelo e-mail via Edge Function (segura, respeita RLS).
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session } } = await supabaseClient.auth.getSession();
       await fetch(`${SUPABASE_URL}/functions/v1/vincular-aluno`, {
         method: "POST",
         headers: { Authorization: `Bearer ${session.access_token}` },
@@ -82,7 +82,7 @@ async function protegerPaginaDoAluno() {
 }
 
 async function sair() {
-  await supabase.auth.signOut();
+  await supabaseClient.auth.signOut();
   window.location.href = "index.html";
 }
 

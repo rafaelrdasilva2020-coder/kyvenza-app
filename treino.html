@@ -49,7 +49,7 @@
       container.innerHTML = `<div class="video-em-breve">CARREGANDO...</div>`;
       document.getElementById("modal-video").classList.remove("hidden");
 
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session } } = await supabaseClient.auth.getSession();
       const urlProxy = `${SUPABASE_URL}/functions/v1/workoutx-gif-proxy?exercicio_id=${exercicioId}&token=${session.access_token}`;
 
       container.innerHTML = `<img class="w-full h-full object-cover" src="${urlProxy}" alt="${nomeExercicio}"/>`;
@@ -76,7 +76,7 @@
     const hoje = new Date();
     const mesReferencia = new Date(Date.UTC(hoje.getUTCFullYear(), hoje.getUTCMonth(), 1)).toISOString().slice(0, 10);
 
-    const { data: treino } = await supabase
+    const { data: treino } = await supabaseClient
       .from("treinos")
       .select("id, nome, foco, duracao_estimada_min, nivel")
       .eq("aluno_id", aluno.id)
@@ -100,7 +100,7 @@
       <p class="text-sm text-[#bdcbae]">${treino.foco || ""} • ${treino.duracao_estimada_min || "--"} min • ${treino.nivel || ""}</p>
     `;
 
-    const { data: exercicios } = await supabase
+    const { data: exercicios } = await supabaseClient
       .from("treino_exercicios")
       .select("id, nome_exercicio, series, reps, carga_sugerida, observacao, ordem, exercicio_id, exercicios(youtube_id, categoria, workoutx_exercise_id)")
       .eq("treino_id", treino.id)

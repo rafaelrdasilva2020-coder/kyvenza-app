@@ -47,7 +47,7 @@
 <script>
   // Se já existe sessão ativa, manda direto pra home
   (async () => {
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await supabaseClient.auth.getSession();
     if (session) window.location.href = "home.html";
   })();
 
@@ -65,7 +65,7 @@
     mensagem.className = "text-sm text-center mt-6 max-w-xs";
 
     try {
-      const { error } = await supabase.auth.signInWithOtp({
+      const { error } = await supabaseClient.auth.signInWithOtp({
         email,
         options: { emailRedirectTo: window.location.origin + window.location.pathname.replace("index.html", "home.html") }
       });

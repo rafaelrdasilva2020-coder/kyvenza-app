@@ -68,7 +68,7 @@
     const hoje = new Date();
     const mesReferencia = new Date(Date.UTC(hoje.getUTCFullYear(), hoje.getUTCMonth(), 1)).toISOString().slice(0, 10);
 
-    const { data: treinoDoMes } = await supabase
+    const { data: treinoDoMes } = await supabaseClient
       .from("treinos")
       .select("id, nome, foco, criado_em")
       .eq("aluno_id", aluno.id)
@@ -97,7 +97,7 @@
     }
 
     // Histórico (últimos treinos, excluindo o do mês atual)
-    const { data: historico } = await supabase
+    const { data: historico } = await supabaseClient
       .from("treinos")
       .select("id, nome, foco, criado_em")
       .eq("aluno_id", aluno.id)

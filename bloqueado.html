@@ -48,7 +48,7 @@
 <script src="js/supabase-client.js"></script>
 <script>
   (async () => {
-    const { data: planos, error } = await supabase
+    const { data: planos, error } = await supabaseClient
       .from("planos_assinatura")
       .select("nome, valor, frequencia_meses, checkout_url")
       .eq("ativo", true)

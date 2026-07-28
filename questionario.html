@@ -104,7 +104,7 @@
     // (a trava de verdade é sempre validada de novo no servidor)
     const hoje = new Date();
     const mesReferencia = new Date(Date.UTC(hoje.getUTCFullYear(), hoje.getUTCMonth(), 1)).toISOString().slice(0, 10);
-    const { data: treinoExistente } = await supabase
+    const { data: treinoExistente } = await supabaseClient
       .from("treinos")
       .select("id")
       .eq("aluno_id", alunoAtual.id)
@@ -135,7 +135,7 @@
       observacoes: document.getElementById("observacoes").value,
     };
 
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await supabaseClient.auth.getSession();
 
     try {
       const resp = await fetch(`${SUPABASE_URL}/functions/v1/gerar-treino`, {
