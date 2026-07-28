@@ -4,8 +4,8 @@
 // Preencha com os dados do SEU projeto Supabase antes de publicar.
 // A "anon key" é pública por natureza (protegida pelas policies de RLS),
 // então pode ficar no código do app sem problema.
-const SUPABASE_URL = "https://SEU-PROJETO.supabase.co";
-const SUPABASE_ANON_KEY = "SUA_ANON_KEY_AQUI";
+const SUPABASE_URL = "https://bkjphntswqbcsrhismig.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_Qaug0jOTe5ExSa5GlgvalA_Lng42Ggb";
 
 // Carregado via <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
