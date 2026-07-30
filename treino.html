@@ -25,6 +25,8 @@
       <p class="text-sm text-[#87957b] font-mono">Carregando treino...</p>
     </div>
 
+    <div id="tabs-dias" class="flex gap-2 mb-4 overflow-x-auto pb-1"></div>
+
     <div id="lista-exercicios" class="space-y-4"></div>
   </main>
 
@@ -78,7 +80,7 @@
 
     const { data: treino } = await supabaseClient
       .from("treinos")
-      .select("id, nome, foco, duracao_estimada_min, nivel")
+      .select("id, nome, foco, nivel")
       .eq("aluno_id", aluno.id)
       .eq("mes_referencia", mesReferencia)
       .maybeSingle();
@@ -92,18 +94,11 @@
       return;
     }
 
-    cabecalho.innerHTML = `
-      <div class="flex items-center gap-2 mb-1">
-        <span class="font-mono text-xs bg-[#1f1f1f] border border-[#3e4a34] rounded-full px-2 py-0.5 text-[#76ff03]">AI OPTIMIZED</span>
-      </div>
-      <h1 class="font-display text-2xl font-bold">${treino.nome}</h1>
-      <p class="text-sm text-[#bdcbae]">${treino.foco || ""} • ${treino.duracao_estimada_min || "--"} min • ${treino.nivel || ""}</p>
-    `;
-
     const { data: exercicios } = await supabaseClient
       .from("treino_exercicios")
-      .select("id, nome_exercicio, series, reps, carga_sugerida, observacao, ordem, exercicio_id, exercicios(youtube_id, categoria, workoutx_exercise_id)")
+      .select("id, nome_exercicio, series, reps, carga_sugerida, observacao, ordem, exercicio_id, dia_letra, dia_nome, dia_foco, dia_ordem, dia_duracao_estimada_min, exercicios(youtube_id, categoria, workoutx_exercise_id)")
       .eq("treino_id", treino.id)
+      .order("dia_ordem", { ascending: true })
       .order("ordem", { ascending: true });
 
     if (!exercicios || exercicios.length === 0) {
@@ -111,33 +106,90 @@
       return;
     }
 
-    listaEl.innerHTML = exercicios.map(ex => {
-      const youtubeId = ex.exercicios?.youtube_id;
-      const workoutxExerciseId = ex.exercicios?.workoutx_exercise_id;
-      const categoria = ex.exercicios?.categoria || "";
-      return `
-        <div class="glass-card rounded-xl p-4 cursor-pointer" onclick='abrirModal(${JSON.stringify(ex.nome_exercicio)}, ${JSON.stringify(ex.exercicio_id)}, ${workoutxExerciseId ? JSON.stringify(workoutxExerciseId) : null}, ${youtubeId ? `"${youtubeId}"` : null})'>
-          ${categoria ? `<span class="font-mono text-xs text-[#76ff03] uppercase">${categoria}</span>` : ""}
-          <div class="flex items-center justify-between mt-1">
-            <div>
-              <p class="font-display font-semibold text-base">${ex.nome_exercicio}</p>
-              <p class="text-xs text-[#87957b]">${ex.observacao || ""}</p>
-            </div>
-            <div class="w-9 h-9 rounded-full border border-[#3e4a34] flex items-center justify-center text-[#76ff03]">▶</div>
-          </div>
-          <div class="flex gap-4 mt-3">
-            <div class="bg-[#1b1b1b] rounded-md px-3 py-2 flex-1">
-              <p class="font-mono text-[10px] text-[#87957b] uppercase">Séries x Reps</p>
-              <p class="font-mono text-sm">${ex.series || "--"} x ${ex.reps || "--"}</p>
-            </div>
-            <div class="bg-[#1b1b1b] rounded-md px-3 py-2 flex-1">
-              <p class="font-mono text-[10px] text-[#87957b] uppercase">Carga sugerida</p>
-              <p class="font-mono text-sm">${ex.carga_sugerida || "livre"}</p>
-            </div>
-          </div>
+    // Agrupa os exercícios por dia (Treino A, B, C...), preservando a ordem
+    // em que a IA organizou o split.
+    const diasMap = new Map();
+    for (const ex of exercicios) {
+      const chave = ex.dia_letra || "ÚNICO";
+      if (!diasMap.has(chave)) {
+        diasMap.set(chave, {
+          letra: ex.dia_letra || "",
+          nome: ex.dia_nome || treino.nome,
+          foco: ex.dia_foco || treino.foco,
+          duracao: ex.dia_duracao_estimada_min,
+          itens: [],
+        });
+      }
+      diasMap.get(chave).itens.push(ex);
+    }
+    const dias = Array.from(diasMap.values());
+
+    const tabsEl = document.getElementById("tabs-dias");
+    let diaAtivo = 0;
+
+    function renderizarTabs() {
+      if (dias.length <= 1) {
+        tabsEl.innerHTML = "";
+        return;
+      }
+      tabsEl.innerHTML = dias.map((d, i) => `
+        <button
+          data-dia-idx="${i}"
+          class="font-mono text-sm px-4 py-2 rounded-full border whitespace-nowrap transition-colors ${i === diaAtivo ? "bg-[#76ff03] text-black border-[#76ff03] font-semibold" : "border-[#3e4a34] text-[#bdcbae]"}"
+        >TREINO ${d.letra || i + 1}</button>
+      `).join("");
+
+      tabsEl.querySelectorAll("[data-dia-idx]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          diaAtivo = Number(btn.getAttribute("data-dia-idx"));
+          renderizarTabs();
+          renderizarDia();
+        });
+      });
+    }
+
+    function renderizarDia() {
+      const dia = dias[diaAtivo];
+
+      cabecalho.innerHTML = `
+        <div class="flex items-center gap-2 mb-1">
+          <span class="font-mono text-xs bg-[#1f1f1f] border border-[#3e4a34] rounded-full px-2 py-0.5 text-[#76ff03]">AI OPTIMIZED</span>
         </div>
+        <h1 class="font-display text-2xl font-bold">${dia.letra ? `Treino ${dia.letra} — ${dia.nome}` : treino.nome}</h1>
+        <p class="text-sm text-[#bdcbae]">${dia.foco || ""} • ${dia.duracao || "--"} min • ${treino.nivel || ""}</p>
       `;
-    }).join("");
+
+      listaEl.innerHTML = dia.itens.map(ex => {
+        const youtubeId = ex.exercicios?.youtube_id;
+        const workoutxExerciseId = ex.exercicios?.workoutx_exercise_id;
+        const categoria = ex.exercicios?.categoria || "";
+        return `
+          <div class="glass-card rounded-xl p-4 cursor-pointer" onclick='abrirModal(${JSON.stringify(ex.nome_exercicio)}, ${JSON.stringify(ex.exercicio_id)}, ${workoutxExerciseId ? JSON.stringify(workoutxExerciseId) : null}, ${youtubeId ? `"${youtubeId}"` : null})'>
+            ${categoria ? `<span class="font-mono text-xs text-[#76ff03] uppercase">${categoria}</span>` : ""}
+            <div class="flex items-center justify-between mt-1">
+              <div>
+                <p class="font-display font-semibold text-base">${ex.nome_exercicio}</p>
+                <p class="text-xs text-[#87957b]">${ex.observacao || ""}</p>
+              </div>
+              <div class="w-9 h-9 rounded-full border border-[#3e4a34] flex items-center justify-center text-[#76ff03]">▶</div>
+            </div>
+            <div class="flex gap-4 mt-3">
+              <div class="bg-[#1b1b1b] rounded-md px-3 py-2 flex-1">
+                <p class="font-mono text-[10px] text-[#87957b] uppercase">Séries x Reps</p>
+                <p class="font-mono text-sm">${ex.series || "--"} x ${ex.reps || "--"}</p>
+              </div>
+              <div class="bg-[#1b1b1b] rounded-md px-3 py-2 flex-1">
+                <p class="font-mono text-[10px] text-[#87957b] uppercase">Carga sugerida</p>
+                <p class="font-mono text-sm">${ex.carga_sugerida || "livre"}</p>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    renderizarTabs();
+    renderizarDia();
   })();
 </script>
 </body>
