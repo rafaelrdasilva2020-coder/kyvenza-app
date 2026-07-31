@@ -27,6 +27,10 @@
 
     <div id="tabs-dias" class="flex gap-2 mb-4 overflow-x-auto pb-1"></div>
 
+    <div id="banner-dia-concluido" class="hidden mb-4 rounded-xl p-4 bg-[#0f2a0f] border border-[#76ff03] text-center">
+      <p class="font-display font-semibold text-[#76ff03]">🔥 Treino do dia concluído!</p>
+    </div>
+
     <div id="lista-exercicios" class="space-y-4"></div>
   </main>
 
@@ -106,6 +110,54 @@
       return;
     }
 
+    const hojeData = new Date().toISOString().slice(0, 10);
+
+    // Busca o que o aluno já concluiu HOJE, pra manter marcado mesmo
+    // se ele sair e voltar na tela (e pra calcular o banner de dia concluído).
+    const { data: execucoesHojeRaw } = await supabaseClient
+      .from("execucoes_treino")
+      .select("treino_exercicio_id, carga_real")
+      .eq("aluno_id", aluno.id)
+      .eq("data_execucao", hojeData);
+
+    const execucoesHoje = new Map((execucoesHojeRaw || []).map(e => [e.treino_exercicio_id, e.carga_real]));
+
+    async function marcarConcluido(treinoExercicioId, cargaReal) {
+      const { error } = await supabaseClient
+        .from("execucoes_treino")
+        .upsert(
+          {
+            aluno_id: aluno.id,
+            treino_exercicio_id: treinoExercicioId,
+            data_execucao: hojeData,
+            carga_real: cargaReal || null,
+          },
+          { onConflict: "aluno_id,treino_exercicio_id,data_execucao" }
+        );
+      if (error) {
+        console.error("Erro ao marcar exercício concluído:", error);
+        alert("Não foi possível salvar. Tente novamente.");
+        return false;
+      }
+      execucoesHoje.set(treinoExercicioId, cargaReal || null);
+      return true;
+    }
+
+    async function desmarcarConcluido(treinoExercicioId) {
+      const { error } = await supabaseClient
+        .from("execucoes_treino")
+        .delete()
+        .eq("aluno_id", aluno.id)
+        .eq("treino_exercicio_id", treinoExercicioId)
+        .eq("data_execucao", hojeData);
+      if (error) {
+        console.error("Erro ao desmarcar exercício:", error);
+        return false;
+      }
+      execucoesHoje.delete(treinoExercicioId);
+      return true;
+    }
+
     // Agrupa os exercícios por dia (Treino A, B, C...), preservando a ordem
     // em que a IA organizou o split.
     const diasMap = new Map();
@@ -150,6 +202,7 @@
 
     function renderizarDia() {
       const dia = dias[diaAtivo];
+      const bannerEl = document.getElementById("banner-dia-concluido");
 
       cabecalho.innerHTML = `
         <div class="flex items-center gap-2 mb-1">
@@ -159,33 +212,73 @@
         <p class="text-sm text-[#bdcbae]">${dia.foco || ""} • ${dia.duracao || "--"} min • ${treino.nivel || ""}</p>
       `;
 
+      const todosConcluidos = dia.itens.every(ex => execucoesHoje.has(ex.id));
+      bannerEl.classList.toggle("hidden", !todosConcluidos);
+
       listaEl.innerHTML = dia.itens.map(ex => {
         const youtubeId = ex.exercicios?.youtube_id;
         const workoutxExerciseId = ex.exercicios?.workoutx_exercise_id;
         const categoria = ex.exercicios?.categoria || "";
+        const concluido = execucoesHoje.has(ex.id);
+        const cargaSalva = execucoesHoje.get(ex.id);
+
         return `
-          <div class="glass-card rounded-xl p-4 cursor-pointer" onclick='abrirModal(${JSON.stringify(ex.nome_exercicio)}, ${JSON.stringify(ex.exercicio_id)}, ${workoutxExerciseId ? JSON.stringify(workoutxExerciseId) : null}, ${youtubeId ? `"${youtubeId}"` : null})'>
-            ${categoria ? `<span class="font-mono text-xs text-[#76ff03] uppercase">${categoria}</span>` : ""}
-            <div class="flex items-center justify-between mt-1">
-              <div>
-                <p class="font-display font-semibold text-base">${ex.nome_exercicio}</p>
-                <p class="text-xs text-[#87957b]">${ex.observacao || ""}</p>
+          <div class="glass-card rounded-xl p-4 ${concluido ? "border border-[#76ff03]" : ""}" data-card-id="${ex.id}">
+            <div class="cursor-pointer" onclick='abrirModal(${JSON.stringify(ex.nome_exercicio)}, ${JSON.stringify(ex.exercicio_id)}, ${workoutxExerciseId ? JSON.stringify(workoutxExerciseId) : null}, ${youtubeId ? `"${youtubeId}"` : null})'>
+              ${categoria ? `<span class="font-mono text-xs text-[#76ff03] uppercase">${categoria}</span>` : ""}
+              <div class="flex items-center justify-between mt-1">
+                <div>
+                  <p class="font-display font-semibold text-base">${ex.nome_exercicio}</p>
+                  <p class="text-xs text-[#87957b]">${ex.observacao || ""}</p>
+                </div>
+                <div class="w-9 h-9 rounded-full border border-[#3e4a34] flex items-center justify-center text-[#76ff03]">▶</div>
               </div>
-              <div class="w-9 h-9 rounded-full border border-[#3e4a34] flex items-center justify-center text-[#76ff03]">▶</div>
+              <div class="flex gap-4 mt-3">
+                <div class="bg-[#1b1b1b] rounded-md px-3 py-2 flex-1">
+                  <p class="font-mono text-[10px] text-[#87957b] uppercase">Séries x Reps</p>
+                  <p class="font-mono text-sm">${ex.series || "--"} x ${ex.reps || "--"}</p>
+                </div>
+                <div class="bg-[#1b1b1b] rounded-md px-3 py-2 flex-1">
+                  <p class="font-mono text-[10px] text-[#87957b] uppercase">Carga sugerida</p>
+                  <p class="font-mono text-sm">${ex.carga_sugerida || "livre"}</p>
+                </div>
+              </div>
             </div>
-            <div class="flex gap-4 mt-3">
-              <div class="bg-[#1b1b1b] rounded-md px-3 py-2 flex-1">
-                <p class="font-mono text-[10px] text-[#87957b] uppercase">Séries x Reps</p>
-                <p class="font-mono text-sm">${ex.series || "--"} x ${ex.reps || "--"}</p>
-              </div>
-              <div class="bg-[#1b1b1b] rounded-md px-3 py-2 flex-1">
-                <p class="font-mono text-[10px] text-[#87957b] uppercase">Carga sugerida</p>
-                <p class="font-mono text-sm">${ex.carga_sugerida || "livre"}</p>
-              </div>
+
+            <div class="flex gap-2 mt-3">
+              <input
+                type="text"
+                data-input-carga="${ex.id}"
+                placeholder="Carga real (ex: 20kg)"
+                value="${cargaSalva || ""}"
+                class="flex-1 bg-[#1b1b1b] border border-[#3e4a34] rounded-md px-3 py-2 text-sm font-mono text-[#e2e2e2] placeholder:text-[#5c6b52] outline-none focus:border-[#76ff03]"
+              />
+              <button
+                data-btn-concluir="${ex.id}"
+                class="font-mono text-sm px-4 py-2 rounded-md font-semibold whitespace-nowrap transition-colors ${concluido ? "bg-[#76ff03] text-black" : "border border-[#3e4a34] text-[#bdcbae]"}"
+              >${concluido ? "✓ CONCLUÍDO" : "CONCLUIR"}</button>
             </div>
           </div>
         `;
       }).join("");
+
+      // Liga os botões de concluir/desmarcar de cada card
+      listaEl.querySelectorAll("[data-btn-concluir]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const treinoExercicioId = btn.getAttribute("data-btn-concluir");
+          const jaConcluido = execucoesHoje.has(treinoExercicioId);
+          btn.disabled = true;
+
+          if (jaConcluido) {
+            await desmarcarConcluido(treinoExercicioId);
+          } else {
+            const input = listaEl.querySelector(`[data-input-carga="${treinoExercicioId}"]`);
+            await marcarConcluido(treinoExercicioId, input ? input.value.trim() : "");
+          }
+
+          renderizarDia();
+        });
+      });
     }
 
     renderizarTabs();
