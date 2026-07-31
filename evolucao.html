@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-br">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KYVENZA | Evolução</title>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#131313"/>
+<link rel="icon" href="assets/icons/favicon.ico"/>
+<link rel="apple-touch-icon" href="assets/icons/icon-180.png"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/kyvenza.css"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="min-h-screen pb-24">
+
+  <!-- Header -->
+  <header class="flex items-center justify-between px-5 py-4 border-b border-white/5">
+    <div class="flex items-center gap-2">
+      <img src="assets/logo.png" class="w-8 h-8 rounded-full"/>
+      <span class="font-display font-bold text-lg gradient-text">KYVENZA</span>
+    </div>
+    <button onclick="sair()" class="text-xs font-mono text-[#87957b] border border-[#3e4a34] rounded-full px-3 py-1">SAIR</button>
+  </header>
+
+  <main class="px-5 pt-6 space-y-6">
+    <div>
+      <h1 class="font-display text-2xl font-bold">Sua evolução</h1>
+      <p class="text-sm text-[#bdcbae] mt-1">Acompanhe sua consistência e progresso de carga.</p>
+    </div>
+
+    <!-- Cards de resumo -->
+    <section class="grid grid-cols-2 gap-3">
+      <div class="glass-card rounded-xl p-4 text-center">
+        <p class="font-mono text-[10px] text-[#87957b] uppercase mb-1">Dias treinados este mês</p>
+        <p class="font-display text-3xl font-bold text-[#76ff03]" id="stat-dias-mes">--</p>
+      </div>
+      <div class="glass-card rounded-xl p-4 text-center">
+        <p class="font-mono text-[10px] text-[#87957b] uppercase mb-1">Sequência atual</p>
+        <p class="font-display text-3xl font-bold text-[#00daf3]" id="stat-sequencia">--</p>
+      </div>
+    </section>
+
+    <!-- Histórico dia a dia -->
+    <section>
+      <h2 class="font-display font-semibold text-lg mb-3">Histórico</h2>
+      <div id="lista-historico" class="space-y-4">
+        <p class="text-sm text-[#87957b] font-mono">Carregando histórico...</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Nav inferior -->
+  <nav class="fixed bottom-0 left-0 right-0 bg-[#0e0e0e] border-t border-white/5 flex justify-around py-3">
+    <a href="home.html" class="flex flex-col items-center text-[#87957b] text-xs font-mono">
+      <span>●</span>HOME
+    </a>
+    <a href="questionario.html" class="flex flex-col items-center text-[#87957b] text-xs font-mono">
+      <span>●</span>AI TRAINER
+    </a>
+    <a href="treino.html" class="flex flex-col items-center text-[#87957b] text-xs font-mono">
+      <span>●</span>TREINO
+    </a>
+    <a href="evolucao.html" class="flex flex-col items-center text-[#76ff03] text-xs font-mono">
+      <span>●</span>EVOLUÇÃO
+    </a>
+  </nav>
+
+<script src="js/supabase-client.js"></script>
+<script>
+  function formatarDataISO(data) {
+    return data.toISOString().slice(0, 10);
+  }
+
+  function formatarDataBR(dataISO) {
+    // dataISO vem como "YYYY-MM-DD" — monta a data em UTC-neutro pra não
+    // "voltar um dia" por causa de fuso horário na conversão.
+    const [ano, mes, dia] = dataISO.split("-");
+    return `${dia}/${mes}/${ano}`;
+  }
+
+  function calcularSequencia(datasUnicasSet) {
+    let cursor = new Date();
+    // Se o aluno ainda não treinou hoje, começa a contar de ontem —
+    // assim um dia de descanso "hoje" não zera a sequência que já tinha.
+    if (!datasUnicasSet.has(formatarDataISO(cursor))) {
+      cursor.setDate(cursor.getDate() - 1);
+    }
+    let sequencia = 0;
+    while (datasUnicasSet.has(formatarDataISO(cursor))) {
+      sequencia++;
+      cursor.setDate(cursor.getDate() - 1);
+    }
+    return sequencia;
+  }
+
+  (async () => {
+    const aluno = await protegerPaginaDoAluno();
+    if (!aluno) return;
+
+    const { data: execucoes, error } = await supabaseClient
+      .from("execucoes_treino")
+      .select("data_execucao, carga_real, treino_exercicios(nome_exercicio, dia_letra, dia_nome)")
+      .eq("aluno_id", aluno.id)
+      .order("data_execucao", { ascending: false });
+
+    const listaEl = document.getElementById("lista-historico");
+
+    if (error) {
+      console.error("Erro ao buscar histórico:", error);
+      listaEl.innerHTML = `<p class="text-sm text-[#87957b] font-mono">Não foi possível carregar seu histórico agora.</p>`;
+      return;
+    }
+
+    if (!execucoes || execucoes.length === 0) {
+      document.getElementById("stat-dias-mes").textContent = "0";
+      document.getElementById("stat-sequencia").textContent = "0";
+      listaEl.innerHTML = `<p class="text-sm text-[#87957b] font-mono">Você ainda não concluiu nenhum treino. Bora começar hoje?</p>`;
+      return;
+    }
+
+    // Agrupa por data (um aluno pode ter concluído vários exercícios,
+    // de um ou mais dias do split, na mesma data calendário).
+    const porData = new Map();
+    for (const ex of execucoes) {
+      if (!porData.has(ex.data_execucao)) porData.set(ex.data_execucao, []);
+      porData.get(ex.data_execucao).push(ex);
+    }
+
+    const datasUnicas = Array.from(porData.keys()); // já vem ordenado desc pela query
+    const datasUnicasSet = new Set(datasUnicas);
+
+    // Dias treinados no mês corrente
+    const hoje = new Date();
+    const prefixoMesAtual = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, "0")}`;
+    const diasNoMes = datasUnicas.filter(d => d.startsWith(prefixoMesAtual)).length;
+
+    document.getElementById("stat-dias-mes").textContent = String(diasNoMes);
+    document.getElementById("stat-sequencia").textContent = String(calcularSequencia(datasUnicasSet));
+
+    // Renderiza o histórico dia a dia, mais recente primeiro
+    listaEl.innerHTML = datasUnicas.map((dataISO) => {
+      const itensDoDia = porData.get(dataISO);
+
+      // Dentro do mesmo dia calendário, agrupa por qual Treino (A/B/C) foi feito
+      const porTreino = new Map();
+      for (const item of itensDoDia) {
+        const letra = item.treino_exercicios?.dia_letra || "";
+        const nomeDia = item.treino_exercicios?.dia_nome || "Treino";
+        const chave = letra || nomeDia;
+        if (!porTreino.has(chave)) porTreino.set(chave, { letra, nomeDia, itens: [] });
+        porTreino.get(chave).itens.push(item);
+      }
+
+      const blocosTreino = Array.from(porTreino.values()).map(bloco => `
+        <div class="mt-2">
+          <p class="font-mono text-xs text-[#76ff03] uppercase mb-1">${bloco.letra ? `Treino ${bloco.letra} — ` : ""}${bloco.nomeDia}</p>
+          <ul class="space-y-1">
+            ${bloco.itens.map(item => `
+              <li class="flex items-center justify-between text-sm">
+                <span class="text-[#e2e2e2]">${item.treino_exercicios?.nome_exercicio || "Exercício"}</span>
+                <span class="font-mono text-xs text-[#87957b]">${item.carga_real || "—"}</span>
+              </li>
+            `).join("")}
+          </ul>
+        </div>
+      `).join("");
+
+      return `
+        <div class="glass-card rounded-xl p-4">
+          <p class="font-display font-semibold">${formatarDataBR(dataISO)}</p>
+          ${blocosTreino}
+        </div>
+      `;
+    }).join("");
+  })();
+</script>
+</body>
+</html>
