@@ -27,6 +27,15 @@
 
     <div id="tabs-dias" class="flex gap-2 mb-4 overflow-x-auto pb-1"></div>
 
+    <div id="progresso-dia" class="mb-5">
+      <div class="flex items-center justify-between mb-1.5">
+        <span id="progresso-texto" class="font-mono text-xs text-[#8b9284]">0 de 0 concluídos</span>
+      </div>
+      <div class="progresso-trilho">
+        <div id="progresso-barra" class="progresso-preenchido" style="width: 0%"></div>
+      </div>
+    </div>
+
     <div id="banner-dia-concluido" class="hidden mb-4 rounded-xl p-4 bg-[#0f1f0a] border border-[rgba(118,255,3,0.35)] text-center">
       <p class="font-display font-semibold text-[#76ff03]">🔥 Treino do dia concluído!</p>
     </div>
@@ -212,8 +221,12 @@
         <p class="text-sm text-[#8b9284]">${dia.foco || ""} • ${dia.duracao || "--"} min • ${treino.nivel || ""}</p>
       `;
 
-      const todosConcluidos = dia.itens.every(ex => execucoesHoje.has(ex.id));
+      const totalConcluidos = dia.itens.filter(ex => execucoesHoje.has(ex.id)).length;
+      const todosConcluidos = totalConcluidos === dia.itens.length;
       bannerEl.classList.toggle("hidden", !todosConcluidos);
+
+      document.getElementById("progresso-texto").textContent = `${totalConcluidos} de ${dia.itens.length} concluídos`;
+      document.getElementById("progresso-barra").style.width = `${dia.itens.length ? (totalConcluidos / dia.itens.length) * 100 : 0}%`;
 
       listaEl.innerHTML = dia.itens.map(ex => {
         const youtubeId = ex.exercicios?.youtube_id;
@@ -227,16 +240,18 @@
             <div class="flex items-center gap-3">
               <button
                 data-btn-concluir="${ex.id}"
-                class="w-7 h-7 shrink-0 rounded-full flex items-center justify-center text-sm transition-colors ${concluido ? "bg-[#76ff03] text-black" : "border border-[rgba(255,255,255,0.15)] text-transparent"}"
+                class="icone-circular ${concluido ? "check-animado" : ""} w-7 h-7 shrink-0 rounded-full ${concluido ? "bg-[#76ff03]" : "border border-[rgba(255,255,255,0.15)]"}"
                 aria-label="Marcar como concluído"
-              >✓</button>
+              >${concluido ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17L4 12" stroke="#0a0a0a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>` : ""}</button>
 
               <div class="flex-1 min-w-0 cursor-pointer" onclick='abrirModal(${JSON.stringify(ex.nome_exercicio)}, ${JSON.stringify(ex.exercicio_id)}, ${workoutxExerciseId ? JSON.stringify(workoutxExerciseId) : null}, ${youtubeId ? `"${youtubeId}"` : null})'>
                 <p class="font-display font-semibold text-base truncate ${concluido ? "text-[#8b9284]" : ""}">${ex.nome_exercicio}</p>
                 <p class="font-mono text-xs text-[#8b9284] mt-0.5">${stats}</p>
               </div>
 
-              <div class="w-8 h-8 shrink-0 rounded-full border border-[rgba(255,255,255,0.1)] flex items-center justify-center text-xs text-[#76ff03] cursor-pointer" onclick='abrirModal(${JSON.stringify(ex.nome_exercicio)}, ${JSON.stringify(ex.exercicio_id)}, ${workoutxExerciseId ? JSON.stringify(workoutxExerciseId) : null}, ${youtubeId ? `"${youtubeId}"` : null})'>▶</div>
+              <div class="icone-circular w-8 h-8 shrink-0 rounded-full border border-[rgba(255,255,255,0.1)] cursor-pointer" onclick='abrirModal(${JSON.stringify(ex.nome_exercicio)}, ${JSON.stringify(ex.exercicio_id)}, ${workoutxExerciseId ? JSON.stringify(workoutxExerciseId) : null}, ${youtubeId ? `"${youtubeId}"` : null})'>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="#76ff03"><path d="M8 5v14l11-7z"/></svg>
+              </div>
             </div>
 
             ${ex.observacao ? `
