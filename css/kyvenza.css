@@ -1,45 +1,110 @@
 /* =========================================================
-   KYVENZA — Design tokens (Kinetic Cyber-Fitness)
-   Extraído do export do Stitch, compartilhado por todas as telas
+   KYVENZA — Design tokens v2 (refinamento visual)
+   Mesma marca (verde Kyvenza + tipografia atual), aplicada com
+   mais disciplina: fundo em camadas, brilho reservado pra poucos
+   momentos, uma cor de destaque principal em vez de duas competindo.
    ========================================================= */
 
-@keyframes pulse-glow {
-  0%, 100% { opacity: 0.6; filter: blur(8px); }
-  50% { opacity: 1; filter: blur(12px); }
-}
-.ai-pulse { animation: pulse-glow 3s infinite ease-in-out; }
+:root {
+  /* Fundo em camadas — em vez de preto puro + cards translúcidos,
+     cada nível tem seu próprio tom sólido. Mais fácil de ler, sensação
+     de profundidade sem depender de blur/opacidade em tudo. */
+  --bg: #0a0a0a;
+  --surface: #131313;
+  --surface-2: #1a1a1a;
 
-.glass-card {
-  background: rgba(18, 18, 18, 0.7);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  position: relative;
-  overflow: hidden;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
+
+  --text: #f2f1ed;
+  --text-muted: #8b9284;
+
+  /* Uma cor de destaque principal (a mesma do seu logo/marca).
+     O ciano continua existindo, mas vira exceção — só pra "info"
+     pontual, não decoração espalhada pela tela. */
+  --accent: #76ff03;
+  --accent-ink: #0a0a0a; /* texto em cima do accent */
+  --info: #00daf3;
+
+  --danger: #ff5c5c;
 }
-.glass-card::before {
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.55; filter: blur(6px); }
+  50% { opacity: 1; filter: blur(10px); }
+}
+/* Reservado só pra momentos de "IA trabalhando" — não usar em outro lugar */
+.ai-pulse { animation: pulse-glow 2.4s infinite ease-in-out; }
+
+@keyframes subir-suave {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.entrada-suave { animation: subir-suave 0.35s ease-out both; }
+@media (prefers-reduced-motion: reduce) {
+  .entrada-suave, .ai-pulse { animation: none; }
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  font-family: 'Geist', sans-serif;
+}
+.font-display { font-family: 'Space Grotesk', sans-serif; }
+.font-mono { font-family: 'JetBrains Mono', monospace; letter-spacing: 0.04em; }
+
+/* Card padrão — sólido, com borda fina neutra. Sem gradiente colorido
+   por baixo, sem glow. É o "chão" visual que sustenta o conteúdo. */
+.glass-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+/* Card em destaque — usar só quando o conteúdo realmente pede atenção
+   prioritária (ex: treino ativo do dia). Não usar em toda lista. */
+.card-destaque {
+  background: var(--surface);
+  border: 1px solid rgba(118, 255, 3, 0.25);
+  border-radius: 14px;
+  position: relative;
+}
+.card-destaque::before {
   content: '';
   position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(103, 225, 0, 0.05) 0%, rgba(0, 218, 243, 0.05) 100%);
-  pointer-events: none;
+  top: -1px; left: 16px; right: 16px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0.6;
 }
 
-.neon-border-green {
-  border: 1px solid rgba(103, 225, 0, 0.3);
-  box-shadow: 0 0 15px rgba(103, 225, 0, 0.1);
+/* Bordas neon — sem box-shadow de brilho por padrão. Reservar o glow
+   (.neon-glow) só pro elemento MAIS importante da tela, nunca em série. */
+.neon-border-green { border: 1px solid rgba(118, 255, 3, 0.35); }
+.neon-border-cyan { border: 1px solid rgba(0, 218, 243, 0.3); }
+.neon-glow { box-shadow: 0 0 20px rgba(118, 255, 3, 0.15); }
+
+.neon-text-cyan { color: var(--info); }
+
+/* CTA principal — sólido, direto. O gradiente fica reservado só pro
+   .gradient-cta-hero (o ÚNICO botão de maior hierarquia da tela). */
+.btn-primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
 }
-.neon-border-cyan {
-  border: 1px solid rgba(0, 218, 243, 0.3);
-  box-shadow: 0 0 15px rgba(0, 218, 243, 0.1);
+.gradient-cta-hero {
+  background: linear-gradient(90deg, #76ff03 0%, #00e5ff 100%);
+  color: #000;
 }
-.neon-text-cyan {
-  color: #00daf3;
-  text-shadow: 0 0 8px rgba(0, 218, 243, 0.5);
-}
+/* Mantido por compatibilidade com telas atuais — mas o objetivo é migrar
+   os usos de botão comum pra .btn-primary e reservar este pro hero. */
 .gradient-cta {
   background: linear-gradient(90deg, #76ff03 0%, #00e5ff 100%);
   color: #000;
 }
+
 .gradient-text {
   background: linear-gradient(90deg, #76ff03 0%, #00e5ff 100%);
   -webkit-background-clip: text;
@@ -47,16 +112,16 @@
   color: transparent;
 }
 
-body {
-  background-color: #000000;
-  color: #e2e2e2;
-  -webkit-font-smoothing: antialiased;
-  font-family: 'Geist', sans-serif;
+/* Label mono uppercase — usar com moderação (eyebrow de seção, tag de
+   status), não em toda linha de texto secundário. */
+.label-mono {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
 }
-.font-display { font-family: 'Space Grotesk', sans-serif; }
-.font-mono { font-family: 'JetBrains Mono', monospace; }
 
-/* Loading spinner simples usado em botões durante chamadas assíncronas */
 .spinner {
   width: 18px; height: 18px;
   border: 2px solid rgba(0,0,0,0.3);
@@ -67,12 +132,11 @@ body {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Estado vazio de vídeo ainda não cadastrado */
 .video-em-breve {
   display: flex; align-items: center; justify-content: center;
   height: 100%; width: 100%;
-  background: #1b1b1b;
-  color: #87957b;
+  background: var(--surface-2);
+  color: var(--text-muted);
   font-family: 'JetBrains Mono', monospace;
   font-size: 12px;
   letter-spacing: 0.05em;
