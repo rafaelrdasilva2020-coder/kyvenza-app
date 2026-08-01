@@ -218,45 +218,42 @@
       listaEl.innerHTML = dia.itens.map(ex => {
         const youtubeId = ex.exercicios?.youtube_id;
         const workoutxExerciseId = ex.exercicios?.workoutx_exercise_id;
-        const categoria = ex.exercicios?.categoria || "";
         const concluido = execucoesHoje.has(ex.id);
         const cargaSalva = execucoesHoje.get(ex.id);
+        const stats = `${ex.series || "--"}x${ex.reps || "--"}${ex.carga_sugerida ? ` · sugestão ${ex.carga_sugerida}` : ""}`;
 
         return `
-          <div class="glass-card p-4 ${concluido ? "border border-[rgba(118,255,3,0.4)]" : ""}" data-card-id="${ex.id}">
-            <div class="cursor-pointer" onclick='abrirModal(${JSON.stringify(ex.nome_exercicio)}, ${JSON.stringify(ex.exercicio_id)}, ${workoutxExerciseId ? JSON.stringify(workoutxExerciseId) : null}, ${youtubeId ? `"${youtubeId}"` : null})'>
-              ${categoria ? `<span class="font-mono text-xs text-[#76ff03] uppercase">${categoria}</span>` : ""}
-              <div class="flex items-center justify-between mt-1">
-                <div>
-                  <p class="font-display font-semibold text-base">${ex.nome_exercicio}</p>
-                  <p class="text-xs text-[#8b9284]">${ex.observacao || ""}</p>
-                </div>
-                <div class="w-9 h-9 rounded-full border border-[rgba(255,255,255,0.1)] flex items-center justify-center text-[#76ff03]">▶</div>
+          <div class="glass-card p-3.5 ${concluido ? "border border-[rgba(118,255,3,0.4)]" : ""}" data-card-id="${ex.id}">
+            <div class="flex items-center gap-3">
+              <button
+                data-btn-concluir="${ex.id}"
+                class="w-7 h-7 shrink-0 rounded-full flex items-center justify-center text-sm transition-colors ${concluido ? "bg-[#76ff03] text-black" : "border border-[rgba(255,255,255,0.15)] text-transparent"}"
+                aria-label="Marcar como concluído"
+              >✓</button>
+
+              <div class="flex-1 min-w-0 cursor-pointer" onclick='abrirModal(${JSON.stringify(ex.nome_exercicio)}, ${JSON.stringify(ex.exercicio_id)}, ${workoutxExerciseId ? JSON.stringify(workoutxExerciseId) : null}, ${youtubeId ? `"${youtubeId}"` : null})'>
+                <p class="font-display font-semibold text-base truncate ${concluido ? "text-[#8b9284]" : ""}">${ex.nome_exercicio}</p>
+                <p class="font-mono text-xs text-[#8b9284] mt-0.5">${stats}</p>
               </div>
-              <div class="flex gap-4 mt-3">
-                <div class="bg-[#1a1a1a] rounded-md px-3 py-2 flex-1">
-                  <p class="font-mono text-[10px] text-[#8b9284] uppercase">Séries x Reps</p>
-                  <p class="font-mono text-sm">${ex.series || "--"} x ${ex.reps || "--"}</p>
-                </div>
-                <div class="bg-[#1a1a1a] rounded-md px-3 py-2 flex-1">
-                  <p class="font-mono text-[10px] text-[#8b9284] uppercase">Carga sugerida</p>
-                  <p class="font-mono text-sm">${ex.carga_sugerida || "livre"}</p>
-                </div>
-              </div>
+
+              <div class="w-8 h-8 shrink-0 rounded-full border border-[rgba(255,255,255,0.1)] flex items-center justify-center text-xs text-[#76ff03] cursor-pointer" onclick='abrirModal(${JSON.stringify(ex.nome_exercicio)}, ${JSON.stringify(ex.exercicio_id)}, ${workoutxExerciseId ? JSON.stringify(workoutxExerciseId) : null}, ${youtubeId ? `"${youtubeId}"` : null})'>▶</div>
             </div>
 
-            <div class="flex gap-2 mt-3">
+            ${ex.observacao ? `
+              <details class="mt-2 ml-10">
+                <summary class="font-mono text-[11px] text-[#6b7166] cursor-pointer select-none">técnica</summary>
+                <p class="text-xs text-[#8b9284] mt-1">${ex.observacao}</p>
+              </details>
+            ` : ""}
+
+            <div class="mt-2.5 ml-10">
               <input
                 type="text"
                 data-input-carga="${ex.id}"
-                placeholder="Carga real (ex: 20kg)"
+                placeholder="carga real (ex: 20kg)"
                 value="${cargaSalva || ""}"
-                class="flex-1 bg-[#1a1a1a] border border-[rgba(255,255,255,0.1)] rounded-md px-3 py-2 text-sm font-mono text-[#f2f1ed] placeholder:text-[#6b7166] outline-none focus:border-[#76ff03]"
+                class="w-full bg-transparent border-b border-[rgba(255,255,255,0.1)] py-1 text-xs font-mono text-[#f2f1ed] placeholder:text-[#6b7166] outline-none focus:border-[#76ff03]"
               />
-              <button
-                data-btn-concluir="${ex.id}"
-                class="font-mono text-sm px-4 py-2 rounded-md font-semibold whitespace-nowrap transition-colors ${concluido ? "bg-[#76ff03] text-black" : "border border-[rgba(255,255,255,0.12)] text-[#8b9284]"}"
-              >${concluido ? "✓ CONCLUÍDO" : "CONCLUIR"}</button>
             </div>
           </div>
         `;
