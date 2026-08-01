@@ -5,7 +5,7 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>KYVENZA | AI Trainer</title>
 <link rel="manifest" href="manifest.json"/>
-<meta name="theme-color" content="#131313"/>
+<meta name="theme-color" content="#0a0a0a"/>
 <link rel="icon" href="assets/icons/favicon.ico"/>
 <link rel="apple-touch-icon" href="assets/icons/icon-180.png"/>
 <script src="https://cdn.tailwindcss.com"></script>
@@ -21,21 +21,21 @@
   </header>
 
   <main class="px-5 pt-6">
-    <p class="font-mono text-xs text-[#87957b] tracking-widest mb-1">PROTOCOLO DE OTIMIZAÇÃO</p>
+    <p class="font-mono text-xs text-[#8b9284] tracking-widest mb-1">PROTOCOLO DE OTIMIZAÇÃO</p>
     <h1 class="font-display text-2xl font-bold mb-2">AI Trainer</h1>
-    <p class="text-sm text-[#bdcbae] mb-6">Responda abaixo para a IA montar seu treino deste mês.</p>
+    <p class="text-sm text-[#8b9284] mb-6">Responda abaixo para a IA montar seu treino deste mês.</p>
 
     <!-- Aviso de limite (mostrado via JS se já gerou este mês) -->
     <div id="aviso-limite" class="hidden glass-card neon-border-cyan rounded-xl p-5 mb-6">
       <p class="font-display font-semibold mb-1">Você já gerou seu treino deste mês</p>
-      <p class="text-sm text-[#bdcbae] mb-4">Um novo treino fica disponível no início do próximo mês.</p>
-      <a href="treino.html" class="gradient-cta font-display font-semibold py-2.5 px-5 rounded-lg inline-block">VER TREINO ATUAL</a>
+      <p class="text-sm text-[#8b9284] mb-4">Um novo treino fica disponível no início do próximo mês.</p>
+      <a href="treino.html" class="btn-primary font-display font-semibold py-2.5 px-5 rounded-lg inline-block">VER TREINO ATUAL</a>
     </div>
 
     <form id="form-questionario" class="glass-card rounded-xl p-5 space-y-5">
       <div>
-        <label class="font-mono text-xs text-[#87957b] tracking-wider block mb-2">OBJETIVO</label>
-        <select id="objetivo" required class="w-full bg-[#1b1b1b] border border-[#3e4a34] rounded-lg px-3 py-2.5 text-sm focus:border-[#00daf3] outline-none">
+        <label class="font-mono text-xs text-[#8b9284] tracking-wider block mb-2">OBJETIVO</label>
+        <select id="objetivo" required class="w-full bg-[#1a1a1a] border border-[rgba(255,255,255,0.1)] rounded-lg px-3 py-2.5 text-sm focus:border-[#76ff03] outline-none">
           <option value="">Selecione...</option>
           <option value="Hipertrofia">Hipertrofia (ganho de massa)</option>
           <option value="Emagrecimento">Emagrecimento</option>
@@ -45,8 +45,8 @@
       </div>
 
       <div>
-        <label class="font-mono text-xs text-[#87957b] tracking-wider block mb-2">NÍVEL</label>
-        <select id="nivel" required class="w-full bg-[#1b1b1b] border border-[#3e4a34] rounded-lg px-3 py-2.5 text-sm focus:border-[#00daf3] outline-none">
+        <label class="font-mono text-xs text-[#8b9284] tracking-wider block mb-2">NÍVEL</label>
+        <select id="nivel" required class="w-full bg-[#1a1a1a] border border-[rgba(255,255,255,0.1)] rounded-lg px-3 py-2.5 text-sm focus:border-[#76ff03] outline-none">
           <option value="">Selecione...</option>
           <option value="Iniciante">Iniciante</option>
           <option value="Intermediário">Intermediário</option>
@@ -55,8 +55,8 @@
       </div>
 
       <div>
-        <label class="font-mono text-xs text-[#87957b] tracking-wider block mb-2">DIAS DISPONÍVEIS POR SEMANA</label>
-        <select id="dias_semana" required class="w-full bg-[#1b1b1b] border border-[#3e4a34] rounded-lg px-3 py-2.5 text-sm focus:border-[#00daf3] outline-none">
+        <label class="font-mono text-xs text-[#8b9284] tracking-wider block mb-2">DIAS DISPONÍVEIS POR SEMANA</label>
+        <select id="dias_semana" required class="w-full bg-[#1a1a1a] border border-[rgba(255,255,255,0.1)] rounded-lg px-3 py-2.5 text-sm focus:border-[#76ff03] outline-none">
           <option value="">Selecione...</option>
           <option value="1">1 dia</option>
           <option value="2">2 dias</option>
@@ -68,24 +68,24 @@
       </div>
 
       <div>
-        <label class="font-mono text-xs text-[#87957b] tracking-wider block mb-2">EQUIPAMENTOS DISPONÍVEIS</label>
+        <label class="font-mono text-xs text-[#8b9284] tracking-wider block mb-2">EQUIPAMENTOS DISPONÍVEIS</label>
         <input id="equipamentos" type="text" placeholder="Ex: halteres, barra, academia completa..."
-          class="w-full bg-[#1b1b1b] border border-[#3e4a34] rounded-lg px-3 py-2.5 text-sm focus:border-[#00daf3] outline-none placeholder:text-[#87957b]"/>
+          class="w-full bg-[#1a1a1a] border border-[rgba(255,255,255,0.1)] rounded-lg px-3 py-2.5 text-sm focus:border-[#76ff03] outline-none placeholder:text-[#8b9284]"/>
       </div>
 
       <div>
-        <label class="font-mono text-xs text-[#87957b] tracking-wider block mb-2">LESÕES OU RESTRIÇÕES (opcional)</label>
+        <label class="font-mono text-xs text-[#8b9284] tracking-wider block mb-2">LESÕES OU RESTRIÇÕES (opcional)</label>
         <input id="restricoes" type="text" placeholder="Ex: dor no joelho, hérnia lombar..."
-          class="w-full bg-[#1b1b1b] border border-[#3e4a34] rounded-lg px-3 py-2.5 text-sm focus:border-[#00daf3] outline-none placeholder:text-[#87957b]"/>
+          class="w-full bg-[#1a1a1a] border border-[rgba(255,255,255,0.1)] rounded-lg px-3 py-2.5 text-sm focus:border-[#76ff03] outline-none placeholder:text-[#8b9284]"/>
       </div>
 
       <div>
-        <label class="font-mono text-xs text-[#87957b] tracking-wider block mb-2">DESCREVA SUAS METAS OU OBSERVAÇÕES</label>
+        <label class="font-mono text-xs text-[#8b9284] tracking-wider block mb-2">DESCREVA SUAS METAS OU OBSERVAÇÕES</label>
         <textarea id="observacoes" rows="3" placeholder="Conte mais sobre o que você busca..."
-          class="w-full bg-[#1b1b1b] border border-[#3e4a34] rounded-lg px-3 py-2.5 text-sm focus:border-[#00daf3] outline-none placeholder:text-[#87957b] resize-none"></textarea>
+          class="w-full bg-[#1a1a1a] border border-[rgba(255,255,255,0.1)] rounded-lg px-3 py-2.5 text-sm focus:border-[#76ff03] outline-none placeholder:text-[#8b9284] resize-none"></textarea>
       </div>
 
-      <button type="submit" id="btn-gerar" class="w-full gradient-cta font-display font-semibold py-3 rounded-lg flex items-center justify-center gap-2">
+      <button type="submit" id="btn-gerar" class="w-full gradient-cta-hero font-display font-semibold py-3 rounded-lg flex items-center justify-center gap-2">
         <span id="btn-texto">GERAR TREINO</span>
       </button>
       <p id="erro" class="text-sm text-red-400 text-center"></p>

@@ -5,7 +5,7 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>KYVENZA | Treino</title>
 <link rel="manifest" href="manifest.json"/>
-<meta name="theme-color" content="#131313"/>
+<meta name="theme-color" content="#0a0a0a"/>
 <link rel="icon" href="assets/icons/favicon.ico"/>
 <link rel="apple-touch-icon" href="assets/icons/icon-180.png"/>
 <script src="https://cdn.tailwindcss.com"></script>
@@ -22,12 +22,12 @@
 
   <main class="px-5 pt-6">
     <div id="cabecalho-treino" class="mb-6">
-      <p class="text-sm text-[#87957b] font-mono">Carregando treino...</p>
+      <p class="text-sm text-[#8b9284] font-mono">Carregando treino...</p>
     </div>
 
     <div id="tabs-dias" class="flex gap-2 mb-4 overflow-x-auto pb-1"></div>
 
-    <div id="banner-dia-concluido" class="hidden mb-4 rounded-xl p-4 bg-[#0f2a0f] border border-[#76ff03] text-center">
+    <div id="banner-dia-concluido" class="hidden mb-4 rounded-xl p-4 bg-[#0f1f0a] border border-[rgba(118,255,3,0.35)] text-center">
       <p class="font-display font-semibold text-[#76ff03]">🔥 Treino do dia concluído!</p>
     </div>
 
@@ -93,8 +93,8 @@
     const listaEl = document.getElementById("lista-exercicios");
 
     if (!treino) {
-      cabecalho.innerHTML = `<p class="text-sm text-[#bdcbae]">Você ainda não gerou o treino deste mês.</p>`;
-      listaEl.innerHTML = `<a href="questionario.html" class="gradient-cta font-display font-semibold py-2.5 px-5 rounded-lg inline-block">GERAR TREINO</a>`;
+      cabecalho.innerHTML = `<p class="text-sm text-[#8b9284]">Você ainda não gerou o treino deste mês.</p>`;
+      listaEl.innerHTML = `<a href="questionario.html" class="gradient-cta-hero font-display font-semibold py-2.5 px-5 rounded-lg inline-block">GERAR TREINO</a>`;
       return;
     }
 
@@ -106,7 +106,7 @@
       .order("ordem", { ascending: true });
 
     if (!exercicios || exercicios.length === 0) {
-      listaEl.innerHTML = `<p class="text-sm text-[#87957b]">Nenhum exercício encontrado neste treino.</p>`;
+      listaEl.innerHTML = `<p class="text-sm text-[#8b9284]">Nenhum exercício encontrado neste treino.</p>`;
       return;
     }
 
@@ -187,7 +187,7 @@
       tabsEl.innerHTML = dias.map((d, i) => `
         <button
           data-dia-idx="${i}"
-          class="font-mono text-sm px-4 py-2 rounded-full border whitespace-nowrap transition-colors ${i === diaAtivo ? "bg-[#76ff03] text-black border-[#76ff03] font-semibold" : "border-[#3e4a34] text-[#bdcbae]"}"
+          class="font-mono text-sm px-4 py-2 rounded-full border whitespace-nowrap transition-colors ${i === diaAtivo ? "bg-[#76ff03] text-black border-[#76ff03] font-semibold" : "border-[rgba(255,255,255,0.1)] text-[#8b9284]"}"
         >TREINO ${d.letra || i + 1}</button>
       `).join("");
 
@@ -206,10 +206,10 @@
 
       cabecalho.innerHTML = `
         <div class="flex items-center gap-2 mb-1">
-          <span class="font-mono text-xs bg-[#1f1f1f] border border-[#3e4a34] rounded-full px-2 py-0.5 text-[#76ff03]">AI OPTIMIZED</span>
+          <span class="font-mono text-xs bg-[#1a1a1a] border border-[rgba(118,255,3,0.3)] rounded-full px-2 py-0.5 text-[#76ff03]">AI OPTIMIZED</span>
         </div>
         <h1 class="font-display text-2xl font-bold">${dia.letra ? `Treino ${dia.letra} — ${dia.nome}` : treino.nome}</h1>
-        <p class="text-sm text-[#bdcbae]">${dia.foco || ""} • ${dia.duracao || "--"} min • ${treino.nivel || ""}</p>
+        <p class="text-sm text-[#8b9284]">${dia.foco || ""} • ${dia.duracao || "--"} min • ${treino.nivel || ""}</p>
       `;
 
       const todosConcluidos = dia.itens.every(ex => execucoesHoje.has(ex.id));
@@ -223,23 +223,23 @@
         const cargaSalva = execucoesHoje.get(ex.id);
 
         return `
-          <div class="glass-card rounded-xl p-4 ${concluido ? "border border-[#76ff03]" : ""}" data-card-id="${ex.id}">
+          <div class="glass-card p-4 ${concluido ? "border border-[rgba(118,255,3,0.4)]" : ""}" data-card-id="${ex.id}">
             <div class="cursor-pointer" onclick='abrirModal(${JSON.stringify(ex.nome_exercicio)}, ${JSON.stringify(ex.exercicio_id)}, ${workoutxExerciseId ? JSON.stringify(workoutxExerciseId) : null}, ${youtubeId ? `"${youtubeId}"` : null})'>
               ${categoria ? `<span class="font-mono text-xs text-[#76ff03] uppercase">${categoria}</span>` : ""}
               <div class="flex items-center justify-between mt-1">
                 <div>
                   <p class="font-display font-semibold text-base">${ex.nome_exercicio}</p>
-                  <p class="text-xs text-[#87957b]">${ex.observacao || ""}</p>
+                  <p class="text-xs text-[#8b9284]">${ex.observacao || ""}</p>
                 </div>
-                <div class="w-9 h-9 rounded-full border border-[#3e4a34] flex items-center justify-center text-[#76ff03]">▶</div>
+                <div class="w-9 h-9 rounded-full border border-[rgba(255,255,255,0.1)] flex items-center justify-center text-[#76ff03]">▶</div>
               </div>
               <div class="flex gap-4 mt-3">
-                <div class="bg-[#1b1b1b] rounded-md px-3 py-2 flex-1">
-                  <p class="font-mono text-[10px] text-[#87957b] uppercase">Séries x Reps</p>
+                <div class="bg-[#1a1a1a] rounded-md px-3 py-2 flex-1">
+                  <p class="font-mono text-[10px] text-[#8b9284] uppercase">Séries x Reps</p>
                   <p class="font-mono text-sm">${ex.series || "--"} x ${ex.reps || "--"}</p>
                 </div>
-                <div class="bg-[#1b1b1b] rounded-md px-3 py-2 flex-1">
-                  <p class="font-mono text-[10px] text-[#87957b] uppercase">Carga sugerida</p>
+                <div class="bg-[#1a1a1a] rounded-md px-3 py-2 flex-1">
+                  <p class="font-mono text-[10px] text-[#8b9284] uppercase">Carga sugerida</p>
                   <p class="font-mono text-sm">${ex.carga_sugerida || "livre"}</p>
                 </div>
               </div>
@@ -251,11 +251,11 @@
                 data-input-carga="${ex.id}"
                 placeholder="Carga real (ex: 20kg)"
                 value="${cargaSalva || ""}"
-                class="flex-1 bg-[#1b1b1b] border border-[#3e4a34] rounded-md px-3 py-2 text-sm font-mono text-[#e2e2e2] placeholder:text-[#5c6b52] outline-none focus:border-[#76ff03]"
+                class="flex-1 bg-[#1a1a1a] border border-[rgba(255,255,255,0.1)] rounded-md px-3 py-2 text-sm font-mono text-[#f2f1ed] placeholder:text-[#6b7166] outline-none focus:border-[#76ff03]"
               />
               <button
                 data-btn-concluir="${ex.id}"
-                class="font-mono text-sm px-4 py-2 rounded-md font-semibold whitespace-nowrap transition-colors ${concluido ? "bg-[#76ff03] text-black" : "border border-[#3e4a34] text-[#bdcbae]"}"
+                class="font-mono text-sm px-4 py-2 rounded-md font-semibold whitespace-nowrap transition-colors ${concluido ? "bg-[#76ff03] text-black" : "border border-[rgba(255,255,255,0.12)] text-[#8b9284]"}"
               >${concluido ? "✓ CONCLUÍDO" : "CONCLUIR"}</button>
             </div>
           </div>

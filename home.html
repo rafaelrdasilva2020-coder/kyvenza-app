@@ -5,7 +5,7 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>KYVENZA | Início</title>
 <link rel="manifest" href="manifest.json"/>
-<meta name="theme-color" content="#131313"/>
+<meta name="theme-color" content="#0a0a0a"/>
 <link rel="icon" href="assets/icons/favicon.ico"/>
 <link rel="apple-touch-icon" href="assets/icons/icon-180.png"/>
 <script src="https://cdn.tailwindcss.com"></script>
@@ -21,41 +21,41 @@
       <img src="assets/logo.png" class="w-8 h-8 rounded-full"/>
       <span class="font-display font-bold text-lg gradient-text">KYVENZA</span>
     </div>
-    <button onclick="sair()" class="text-xs font-mono text-[#87957b] border border-[#3e4a34] rounded-full px-3 py-1">SAIR</button>
+    <button onclick="sair()" class="text-xs font-mono text-[#8b9284] border border-[rgba(255,255,255,0.1)] rounded-full px-3 py-1">SAIR</button>
   </header>
 
   <main class="px-5 pt-6 space-y-6">
     <div>
       <h1 class="font-display text-2xl font-bold" id="saudacao">Olá</h1>
-      <p class="text-sm text-[#bdcbae] mt-1" id="subtitulo">Carregando seu status...</p>
+      <p class="text-sm text-[#8b9284] mt-1" id="subtitulo">Carregando seu status...</p>
     </div>
 
     <!-- Card de status do mês -->
-    <section id="card-status" class="glass-card rounded-xl p-5">
-      <div id="conteudo-status" class="text-sm text-[#bdcbae]">Carregando...</div>
+    <section id="card-status" class="card-destaque p-5">
+      <div id="conteudo-status" class="text-sm text-[#8b9284]">Carregando...</div>
     </section>
 
     <!-- Histórico -->
     <section>
       <h2 class="font-display font-semibold text-lg mb-3">Treinos anteriores</h2>
       <div id="lista-historico" class="space-y-3">
-        <p class="text-sm text-[#87957b] font-mono">Nenhum treino anterior ainda.</p>
+        <p class="text-sm text-[#8b9284] font-mono">Nenhum treino anterior ainda.</p>
       </div>
     </section>
   </main>
 
   <!-- Nav inferior -->
-  <nav class="fixed bottom-0 left-0 right-0 bg-[#0e0e0e] border-t border-white/5 flex justify-around py-3">
+  <nav class="fixed bottom-0 left-0 right-0 bg-[#131313] border-t border-white/5 flex justify-around py-3">
     <a href="home.html" class="flex flex-col items-center text-[#76ff03] text-xs font-mono">
       <span>●</span>HOME
     </a>
-    <a href="questionario.html" class="flex flex-col items-center text-[#87957b] text-xs font-mono">
+    <a href="questionario.html" class="flex flex-col items-center text-[#8b9284] text-xs font-mono">
       <span>●</span>AI TRAINER
     </a>
-    <a href="treino.html" class="flex flex-col items-center text-[#87957b] text-xs font-mono">
+    <a href="treino.html" class="flex flex-col items-center text-[#8b9284] text-xs font-mono">
       <span>●</span>TREINO
     </a>
-    <a href="evolucao.html" class="flex flex-col items-center text-[#87957b] text-xs font-mono">
+    <a href="evolucao.html" class="flex flex-col items-center text-[#8b9284] text-xs font-mono">
       <span>●</span>EVOLUÇÃO
     </a>
   </nav>
@@ -84,18 +84,18 @@
     if (treinoDoMes) {
       subtitulo.textContent = "Seu treino deste mês já está pronto.";
       statusEl.innerHTML = `
-        <p class="font-mono text-xs text-[#76ff03] mb-1">TREINO ATIVO</p>
+        <p class="label-mono mb-1" style="color:#76ff03">TREINO ATIVO</p>
         <h3 class="font-display text-xl font-bold mb-1">${treinoDoMes.nome}</h3>
-        <p class="text-sm text-[#bdcbae] mb-4">${treinoDoMes.foco || ""}</p>
-        <a href="treino.html" class="gradient-cta font-display font-semibold py-2.5 px-5 rounded-lg inline-block">VER TREINO</a>
+        <p class="text-sm text-[#8b9284] mb-4">${treinoDoMes.foco || ""}</p>
+        <a href="treino.html" class="btn-primary font-display font-semibold py-2.5 px-5 rounded-lg inline-block">VER TREINO</a>
       `;
     } else {
       subtitulo.textContent = "Você ainda não gerou seu treino deste mês.";
       statusEl.innerHTML = `
-        <p class="font-mono text-xs text-[#00daf3] mb-1">DISPONÍVEL</p>
+        <p class="label-mono mb-1" style="color:#00daf3">DISPONÍVEL</p>
         <h3 class="font-display text-xl font-bold mb-1">Gere seu treino de ${hoje.toLocaleDateString("pt-BR", { month: "long" })}</h3>
-        <p class="text-sm text-[#bdcbae] mb-4">Responda 4 perguntas rápidas e a IA monta seu treino personalizado.</p>
-        <a href="questionario.html" class="gradient-cta font-display font-semibold py-2.5 px-5 rounded-lg inline-block">GERAR TREINO</a>
+        <p class="text-sm text-[#8b9284] mb-4">Responda 4 perguntas rápidas e a IA monta seu treino personalizado.</p>
+        <a href="questionario.html" class="gradient-cta-hero font-display font-semibold py-2.5 px-5 rounded-lg inline-block">GERAR TREINO</a>
       `;
     }
 
@@ -113,7 +113,7 @@
         <div class="glass-card rounded-lg p-4 flex items-center justify-between">
           <div>
             <p class="font-display font-semibold">${t.nome}</p>
-            <p class="text-xs text-[#87957b] font-mono">${new Date(t.criado_em).toLocaleDateString("pt-BR")}</p>
+            <p class="text-xs text-[#8b9284] font-mono">${new Date(t.criado_em).toLocaleDateString("pt-BR")}</p>
           </div>
         </div>
       `).join("");

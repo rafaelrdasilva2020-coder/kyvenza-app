@@ -5,7 +5,7 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>KYVENZA | Entrar</title>
 <link rel="manifest" href="manifest.json"/>
-<meta name="theme-color" content="#131313"/>
+<meta name="theme-color" content="#0a0a0a"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="Kyvenza"/>
@@ -22,7 +22,7 @@
   <img src="assets/logo.png" alt="Kyvenza" class="w-24 h-24 rounded-full mb-6 neon-border-green"/>
 
   <h1 class="font-display text-2xl font-bold mb-2 text-center">Bem-vindo ao <span class="gradient-text">Kyvenza</span></h1>
-  <p class="text-sm text-[#87957b] text-center mb-8 max-w-xs">Digite seu e-mail cadastrado na assinatura para receber o link de acesso.</p>
+  <p class="text-sm text-[#8b9284] text-center mb-8 max-w-xs">Digite seu e-mail cadastrado na assinatura para receber o link de acesso.</p>
 
   <form id="form-login" class="w-full max-w-sm space-y-4">
     <input
@@ -30,7 +30,7 @@
       id="input-email"
       required
       placeholder="seu@email.com"
-      class="w-full bg-transparent border-b border-[#3e4a34] focus:border-[#00daf3] outline-none py-3 text-[#e2e2e2] placeholder:text-[#87957b] transition-colors"
+      class="w-full bg-transparent border-b border-[rgba(255,255,255,0.12)] focus:border-[#76ff03] outline-none py-3 text-[#f2f1ed] placeholder:text-[#8b9284] transition-colors"
     />
     <button
       type="submit"
@@ -43,15 +43,14 @@
 
   <p id="mensagem" class="text-sm text-center mt-6 max-w-xs"></p>
 
-  <p class="text-xs text-[#87957b] mt-10 text-center max-w-xs">
+  <p class="text-xs text-[#8b9284] mt-10 text-center max-w-xs">
     Ainda não é assinante? <a href="bloqueado.html" class="neon-text-cyan underline">Conheça o Kyvenza AI</a>
   </p>
 
 <script src="js/supabase-client.js"></script>
 <script>
   // Registra o Service Worker — necessário pro navegador considerar o site
-  // "instalável" (Chrome/Android) e pra funcionar offline/cache. Sem essa
-  // chamada, o sw.js fica parado no repositório sem nunca ser ativado.
+  // "instalável" (Chrome/Android) e pra funcionar offline/cache.
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
       navigator.serviceWorker.register("sw.js").catch((err) => {
