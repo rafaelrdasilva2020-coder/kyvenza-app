@@ -12,8 +12,24 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="css/kyvenza.css"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  .dot-serie {
+    width: 8px; height: 8px; border-radius: 999px;
+    background: rgba(255,255,255,0.15);
+    transition: background-color 0.2s ease;
+  }
+  .dot-serie.feita { background: #76ff03; }
+  .stepper-btn {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #f2f1ed; font-size: 16px; user-select: none;
+  }
+  .stepper-btn:active { transform: scale(0.94); }
+  .nav-icone { width: 20px; height: 20px; }
+</style>
 </head>
-<body class="min-h-screen pb-10">
+<body class="min-h-screen pb-24">
 
   <header class="flex items-center gap-3 px-5 py-4 border-b border-white/5">
     <a href="home.html" class="text-xl">←</a>
@@ -21,20 +37,11 @@
   </header>
 
   <main class="px-5 pt-6">
-    <div id="cabecalho-treino" class="mb-6">
+    <div id="cabecalho-treino" class="mb-5">
       <p class="text-sm text-[#8b9284] font-mono">Carregando treino...</p>
     </div>
 
     <div id="tabs-dias" class="flex gap-2 mb-4 overflow-x-auto pb-1"></div>
-
-    <div id="progresso-dia" class="mb-5">
-      <div class="flex items-center justify-between mb-1.5">
-        <span id="progresso-texto" class="font-mono text-xs text-[#8b9284]">0 de 0 concluídos</span>
-      </div>
-      <div class="progresso-trilho">
-        <div id="progresso-barra" class="progresso-preenchido" style="width: 0%"></div>
-      </div>
-    </div>
 
     <div id="banner-dia-concluido" class="hidden mb-4 rounded-xl p-4 bg-[#0f1f0a] border border-[rgba(118,255,3,0.35)] text-center">
       <p class="font-display font-semibold text-[#76ff03]">🔥 Treino do dia concluído!</p>
@@ -54,8 +61,30 @@
     </div>
   </div>
 
+  <!-- Nav inferior com ícones -->
+  <nav class="fixed bottom-0 left-0 right-0 flex justify-around py-3" style="background: var(--surface); border-top: 1px solid var(--border)">
+    <a href="home.html" class="flex flex-col items-center gap-1 text-[10px] font-mono" style="color: var(--text-muted)">
+      <svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l9-9 9 9"/><path d="M5 10v10a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V10"/></svg>
+      HOME
+    </a>
+    <a href="questionario.html" class="flex flex-col items-center gap-1 text-[10px] font-mono" style="color: var(--text-muted)">
+      <svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l1.8 5.6L19 9l-5.2 1.4L12 16l-1.8-5.6L5 9l5.2-1.4z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>
+      AI TRAINER
+    </a>
+    <a href="treino.html" class="flex flex-col items-center gap-1 text-[10px] font-mono" style="color: var(--accent)">
+      <svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 7v10M18 7v10M2 10v4M22 10v4M6 12h12"/></svg>
+      TREINO
+    </a>
+    <a href="evolucao.html" class="flex flex-col items-center gap-1 text-[10px] font-mono" style="color: var(--text-muted)">
+      <svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>
+      EVOLUÇÃO
+    </a>
+  </nav>
+
 <script src="js/supabase-client.js"></script>
 <script>
+  const DESCANSO_PADRAO_SEGUNDOS = 60;
+
   async function abrirModal(nomeExercicio, exercicioId, workoutxExerciseId, youtubeId) {
     document.getElementById("modal-titulo").textContent = nomeExercicio;
     const container = document.getElementById("modal-video-container");
@@ -66,19 +95,13 @@
 
       const { data: { session } } = await supabaseClient.auth.getSession();
 
-      // Se a sessão caiu por algum motivo (token expirado, storage limpo, etc.),
-      // não tenta montar a URL com "null" — manda pro login de novo, com uma
-      // mensagem clara, em vez de travar silenciosamente.
       if (!session) {
         container.innerHTML = `<div class="video-em-breve">SESSÃO EXPIRADA</div>`;
-        setTimeout(() => {
-          window.location.href = "index.html";
-        }, 1500);
+        setTimeout(() => { window.location.href = "index.html"; }, 1500);
         return;
       }
 
       const urlProxy = `${SUPABASE_URL}/functions/v1/workoutx-gif-proxy?exercicio_id=${exercicioId}&token=${session.access_token}`;
-
       container.innerHTML = `<img class="w-full h-full object-cover" src="${urlProxy}" alt="${nomeExercicio}"/>`;
       return;
     }
@@ -96,12 +119,24 @@
     document.getElementById("modal-video-container").innerHTML = "";
   }
 
+  function formatarTempo(segundos) {
+    const m = Math.floor(segundos / 60);
+    const s = segundos % 60;
+    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  }
+
+  function extrairRepsAlvo(repsTexto) {
+    const match = String(repsTexto || "10").match(/\d+/);
+    return match ? parseInt(match[0], 10) : 10;
+  }
+
   (async () => {
     const aluno = await protegerPaginaDoAluno();
     if (!aluno) return;
 
     const hoje = new Date();
     const mesReferencia = new Date(Date.UTC(hoje.getUTCFullYear(), hoje.getUTCMonth(), 1)).toISOString().slice(0, 10);
+    const hojeData = new Date().toISOString().slice(0, 10);
 
     const { data: treino } = await supabaseClient
       .from("treinos")
@@ -131,56 +166,95 @@
       return;
     }
 
-    const hojeData = new Date().toISOString().slice(0, 10);
-
-    // Busca o que o aluno já concluiu HOJE, pra manter marcado mesmo
-    // se ele sair e voltar na tela (e pra calcular o banner de dia concluído).
-    const { data: execucoesHojeRaw } = await supabaseClient
-      .from("execucoes_treino")
-      .select("treino_exercicio_id, carga_real")
+    // Busca as séries já registradas HOJE, pra manter o progresso se o
+    // aluno sair e voltar na tela.
+    const { data: seriesHojeRaw } = await supabaseClient
+      .from("execucoes_series")
+      .select("treino_exercicio_id, numero_serie, reps, carga")
       .eq("aluno_id", aluno.id)
-      .eq("data_execucao", hojeData);
+      .eq("data_execucao", hojeData)
+      .order("numero_serie", { ascending: true });
 
-    const execucoesHoje = new Map((execucoesHojeRaw || []).map(e => [e.treino_exercicio_id, e.carga_real]));
-
-    async function marcarConcluido(treinoExercicioId, cargaReal) {
-      const { error } = await supabaseClient
-        .from("execucoes_treino")
-        .upsert(
-          {
-            aluno_id: aluno.id,
-            treino_exercicio_id: treinoExercicioId,
-            data_execucao: hojeData,
-            carga_real: cargaReal || null,
-          },
-          { onConflict: "aluno_id,treino_exercicio_id,data_execucao" }
-        );
-      if (error) {
-        console.error("Erro ao marcar exercício concluído:", error);
-        alert("Não foi possível salvar. Tente novamente.");
-        return false;
-      }
-      execucoesHoje.set(treinoExercicioId, cargaReal || null);
-      return true;
+    // estado[treino_exercicio_id] = { series: [{numero_serie, reps, carga}], repsAtual, cargaAtual, descansando, descansoRestante, descansoTotal, timerId }
+    const estado = {};
+    for (const ex of exercicios) {
+      const seriesDoExercicio = (seriesHojeRaw || []).filter(s => s.treino_exercicio_id === ex.id);
+      estado[ex.id] = {
+        series: seriesDoExercicio,
+        repsAtual: extrairRepsAlvo(ex.reps),
+        cargaAtual: "",
+        descansando: false,
+      };
     }
 
-    async function desmarcarConcluido(treinoExercicioId) {
-      const { error } = await supabaseClient
-        .from("execucoes_treino")
-        .delete()
-        .eq("aluno_id", aluno.id)
-        .eq("treino_exercicio_id", treinoExercicioId)
-        .eq("data_execucao", hojeData);
-      if (error) {
-        console.error("Erro ao desmarcar exercício:", error);
-        return false;
-      }
-      execucoesHoje.delete(treinoExercicioId);
-      return true;
+    function metaSeries(ex) {
+      return parseInt(ex.series, 10) || 1;
     }
 
-    // Agrupa os exercícios por dia (Treino A, B, C...), preservando a ordem
-    // em que a IA organizou o split.
+    function exercicioConcluido(ex) {
+      return estado[ex.id].series.length >= metaSeries(ex);
+    }
+
+    async function registrarSerie(ex) {
+      const s = estado[ex.id];
+      const numeroSerie = s.series.length + 1;
+
+      const { error } = await supabaseClient.from("execucoes_series").upsert(
+        {
+          aluno_id: aluno.id,
+          treino_exercicio_id: ex.id,
+          data_execucao: hojeData,
+          numero_serie: numeroSerie,
+          reps: s.repsAtual,
+          carga: s.cargaAtual || null,
+        },
+        { onConflict: "aluno_id,treino_exercicio_id,data_execucao,numero_serie" }
+      );
+
+      if (error) {
+        console.error("Erro ao registrar série:", error);
+        alert("Não foi possível salvar essa série. Tente novamente.");
+        return;
+      }
+
+      s.series.push({ numero_serie: numeroSerie, reps: s.repsAtual, carga: s.cargaAtual });
+      s.cargaAtual = "";
+
+      if (exercicioConcluido(ex)) {
+        renderizarDia();
+      } else {
+        iniciarDescanso(ex);
+      }
+    }
+
+    function iniciarDescanso(ex) {
+      const s = estado[ex.id];
+      s.descansando = true;
+      s.descansoTotal = DESCANSO_PADRAO_SEGUNDOS;
+      s.descansoRestante = DESCANSO_PADRAO_SEGUNDOS;
+      renderizarDia();
+
+      s.timerId = setInterval(() => {
+        s.descansoRestante--;
+        const textoEl = document.getElementById(`timer-texto-${ex.id}`);
+        const barraEl = document.getElementById(`timer-barra-${ex.id}`);
+        if (textoEl) textoEl.textContent = formatarTempo(s.descansoRestante);
+        if (barraEl) barraEl.style.width = `${(s.descansoRestante / s.descansoTotal) * 100}%`;
+
+        if (s.descansoRestante <= 0) {
+          pararDescanso(ex);
+        }
+      }, 1000);
+    }
+
+    function pararDescanso(ex) {
+      const s = estado[ex.id];
+      clearInterval(s.timerId);
+      s.descansando = false;
+      renderizarDia();
+    }
+
+    // Agrupa os exercícios por dia (Treino A, B, C...)
     const diasMap = new Map();
     for (const ex of exercicios) {
       const chave = ex.dia_letra || "ÚNICO";
@@ -225,83 +299,137 @@
       const dia = dias[diaAtivo];
       const bannerEl = document.getElementById("banner-dia-concluido");
 
-      cabecalho.innerHTML = `
-        <div class="flex items-center gap-2 mb-1">
-          <span class="font-mono text-xs bg-[#1a1a1a] border border-[rgba(118,255,3,0.3)] rounded-full px-2 py-0.5 text-[#76ff03]">AI OPTIMIZED</span>
-        </div>
-        <h1 class="font-display text-2xl font-bold">${dia.letra ? `Treino ${dia.letra} — ${dia.nome}` : treino.nome}</h1>
-        <p class="text-sm text-[#8b9284]">${dia.foco || ""} • ${dia.duracao || "--"} min • ${treino.nivel || ""}</p>
-      `;
-
-      const totalConcluidos = dia.itens.filter(ex => execucoesHoje.has(ex.id)).length;
+      const totalConcluidos = dia.itens.filter(exercicioConcluido).length;
       const todosConcluidos = totalConcluidos === dia.itens.length;
       bannerEl.classList.toggle("hidden", !todosConcluidos);
 
-      document.getElementById("progresso-texto").textContent = `${totalConcluidos} de ${dia.itens.length} concluídos`;
-      document.getElementById("progresso-barra").style.width = `${dia.itens.length ? (totalConcluidos / dia.itens.length) * 100 : 0}%`;
+      const circunferencia = 150.8;
+      const offset = dia.itens.length ? circunferencia - (totalConcluidos / dia.itens.length) * circunferencia : circunferencia;
+
+      cabecalho.innerHTML = `
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="font-mono text-xs bg-[#1a1a1a] border border-[rgba(118,255,3,0.3)] rounded-full px-2 py-0.5 text-[#76ff03]">AI OPTIMIZED</span>
+            </div>
+            <h1 class="font-display text-xl font-bold">${dia.letra ? `Treino ${dia.letra} — ${dia.nome}` : treino.nome}</h1>
+            <p class="text-sm text-[#8b9284]">${dia.foco || ""} • ${dia.duracao || "--"} min • ${treino.nivel || ""}</p>
+          </div>
+          <div class="relative w-14 h-14 shrink-0">
+            <svg viewBox="0 0 56 56" class="w-14 h-14 -rotate-90">
+              <circle cx="28" cy="28" r="24" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="5"/>
+              <circle cx="28" cy="28" r="24" fill="none" stroke="#76ff03" stroke-width="5" stroke-linecap="round"
+                stroke-dasharray="${circunferencia}" stroke-dashoffset="${offset}" style="transition: stroke-dashoffset 0.4s ease"/>
+            </svg>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <span class="font-mono text-[11px] font-semibold">${totalConcluidos}/${dia.itens.length}</span>
+            </div>
+          </div>
+        </div>
+      `;
 
       listaEl.innerHTML = dia.itens.map(ex => {
         const youtubeId = ex.exercicios?.youtube_id;
         const workoutxExerciseId = ex.exercicios?.workoutx_exercise_id;
-        const concluido = execucoesHoje.has(ex.id);
-        const cargaSalva = execucoesHoje.get(ex.id);
-        const stats = `${ex.series || "--"}x${ex.reps || "--"}${ex.carga_sugerida ? ` · sugestão ${ex.carga_sugerida}` : ""}`;
+        const s = estado[ex.id];
+        const meta = metaSeries(ex);
+        const abrirVideoArgs = `${JSON.stringify(ex.nome_exercicio)}, ${JSON.stringify(ex.exercicio_id)}, ${workoutxExerciseId ? JSON.stringify(workoutxExerciseId) : null}, ${youtubeId ? `"${youtubeId}"` : null}`;
+
+        if (exercicioConcluido(ex)) {
+          const resumo = s.series.map(se => `S${se.numero_serie}: ${se.reps}x ${se.carga || "livre"}`).join(" · ");
+          return `
+            <div class="glass-card p-4 border" style="border-color: rgba(118,255,3,0.4)">
+              <div class="flex items-center justify-between">
+                <div class="min-w-0 cursor-pointer" onclick='abrirModal(${abrirVideoArgs})'>
+                  <p class="font-display font-semibold">${ex.nome_exercicio}</p>
+                  <p class="text-xs mt-0.5 text-[#8b9284] truncate">${resumo}</p>
+                </div>
+                <div class="w-7 h-7 shrink-0 rounded-full flex items-center justify-center bg-[#76ff03] ml-3">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17L4 12" stroke="#0a0a0a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+
+        if (s.descansando) {
+          return `
+            <div class="glass-card p-4">
+              <div class="flex items-center justify-between mb-3">
+                <p class="font-display font-semibold text-base">${ex.nome_exercicio}</p>
+                <span class="label-mono" style="color: var(--accent)">descanso</span>
+              </div>
+              <p id="timer-texto-${ex.id}" class="font-mono text-4xl font-bold text-center mb-3" style="color: var(--accent)">${formatarTempo(s.descansoRestante)}</p>
+              <div class="progresso-trilho mb-3">
+                <div id="timer-barra-${ex.id}" class="progresso-preenchido" style="width: 100%; transition: width 1s linear"></div>
+              </div>
+              <button data-pular-descanso="${ex.id}" class="w-full text-xs font-mono py-1.5 text-[#8b9284]">PULAR DESCANSO →</button>
+            </div>
+          `;
+        }
+
+        const dots = Array.from({ length: meta }, (_, i) => `<div class="dot-serie ${i < s.series.length ? "feita" : ""}"></div>`).join("");
 
         return `
-          <div class="glass-card p-3.5 ${concluido ? "border border-[rgba(118,255,3,0.4)]" : ""}" data-card-id="${ex.id}">
-            <div class="flex items-center gap-3">
-              <button
-                data-btn-concluir="${ex.id}"
-                class="icone-circular ${concluido ? "check-animado" : ""} w-7 h-7 shrink-0 rounded-full ${concluido ? "bg-[#76ff03]" : "border border-[rgba(255,255,255,0.15)]"}"
-                aria-label="Marcar como concluído"
-              >${concluido ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17L4 12" stroke="#0a0a0a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>` : ""}</button>
-
-              <div class="flex-1 min-w-0 cursor-pointer" onclick='abrirModal(${JSON.stringify(ex.nome_exercicio)}, ${JSON.stringify(ex.exercicio_id)}, ${workoutxExerciseId ? JSON.stringify(workoutxExerciseId) : null}, ${youtubeId ? `"${youtubeId}"` : null})'>
-                <p class="font-display font-semibold text-base truncate ${concluido ? "text-[#8b9284]" : ""}">${ex.nome_exercicio}</p>
-                <p class="font-mono text-xs text-[#8b9284] mt-0.5">${stats}</p>
+          <div class="glass-card p-4">
+            <div class="flex items-center justify-between mb-1">
+              <div class="min-w-0 cursor-pointer" onclick='abrirModal(${abrirVideoArgs})'>
+                <p class="font-display font-semibold text-base truncate">${ex.nome_exercicio}</p>
+                <p class="font-mono text-xs mt-0.5 text-[#8b9284]">sugestão ${ex.carga_sugerida || "livre"}</p>
               </div>
-
-              <div class="icone-circular w-8 h-8 shrink-0 rounded-full border border-[rgba(255,255,255,0.1)] cursor-pointer" onclick='abrirModal(${JSON.stringify(ex.nome_exercicio)}, ${JSON.stringify(ex.exercicio_id)}, ${workoutxExerciseId ? JSON.stringify(workoutxExerciseId) : null}, ${youtubeId ? `"${youtubeId}"` : null})'>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="#76ff03"><path d="M8 5v14l11-7z"/></svg>
-              </div>
+              <div class="flex gap-1.5 shrink-0 ml-3">${dots}</div>
             </div>
 
             ${ex.observacao ? `
-              <details class="mt-2 ml-10">
+              <details class="mt-1 mb-2">
                 <summary class="font-mono text-[11px] text-[#6b7166] cursor-pointer select-none">técnica</summary>
                 <p class="text-xs text-[#8b9284] mt-1">${ex.observacao}</p>
               </details>
             ` : ""}
 
-            <div class="mt-2.5 ml-10">
+            <p class="label-mono mb-2 mt-2">SÉRIE ${s.series.length + 1} DE ${meta}</p>
+
+            <div class="flex items-center gap-3 mb-3">
+              <div class="flex items-center gap-2 flex-1">
+                <button data-reps-menos="${ex.id}" class="stepper-btn">−</button>
+                <div class="flex-1 text-center">
+                  <p data-reps-valor="${ex.id}" class="font-mono text-lg font-semibold">${s.repsAtual}</p>
+                  <p class="label-mono" style="font-size:9px">reps</p>
+                </div>
+                <button data-reps-mais="${ex.id}" class="stepper-btn">+</button>
+              </div>
               <input
                 type="text"
                 data-input-carga="${ex.id}"
-                placeholder="carga real (ex: 20kg)"
-                value="${cargaSalva || ""}"
-                class="w-full bg-transparent border-b border-[rgba(255,255,255,0.1)] py-1 text-xs font-mono text-[#f2f1ed] placeholder:text-[#6b7166] outline-none focus:border-[#76ff03]"
+                placeholder="carga (kg)"
+                value="${s.cargaAtual}"
+                class="w-24 bg-transparent border-b text-center py-1 text-sm font-mono outline-none"
+                style="border-color: var(--border); color: var(--text)"
               />
             </div>
+
+            <button data-registrar="${ex.id}" class="w-full btn-primary font-display font-semibold py-2.5 rounded-lg text-sm">
+              REGISTRAR SÉRIE
+            </button>
           </div>
         `;
       }).join("");
 
-      // Liga os botões de concluir/desmarcar de cada card
-      listaEl.querySelectorAll("[data-btn-concluir]").forEach((btn) => {
-        btn.addEventListener("click", async () => {
-          const treinoExercicioId = btn.getAttribute("data-btn-concluir");
-          const jaConcluido = execucoesHoje.has(treinoExercicioId);
-          btn.disabled = true;
+      dia.itens.forEach(ex => {
+        const s = estado[ex.id];
 
-          if (jaConcluido) {
-            await desmarcarConcluido(treinoExercicioId);
-          } else {
-            const input = listaEl.querySelector(`[data-input-carga="${treinoExercicioId}"]`);
-            await marcarConcluido(treinoExercicioId, input ? input.value.trim() : "");
-          }
+        const btnMais = listaEl.querySelector(`[data-reps-mais="${ex.id}"]`);
+        const btnMenos = listaEl.querySelector(`[data-reps-menos="${ex.id}"]`);
+        const valorEl = listaEl.querySelector(`[data-reps-valor="${ex.id}"]`);
+        const inputCarga = listaEl.querySelector(`[data-input-carga="${ex.id}"]`);
+        const btnRegistrar = listaEl.querySelector(`[data-registrar="${ex.id}"]`);
+        const btnPular = listaEl.querySelector(`[data-pular-descanso="${ex.id}"]`);
 
-          renderizarDia();
-        });
+        if (btnMais) btnMais.addEventListener("click", () => { s.repsAtual++; valorEl.textContent = s.repsAtual; });
+        if (btnMenos) btnMenos.addEventListener("click", () => { s.repsAtual = Math.max(1, s.repsAtual - 1); valorEl.textContent = s.repsAtual; });
+        if (inputCarga) inputCarga.addEventListener("input", (e) => { s.cargaAtual = e.target.value; });
+        if (btnRegistrar) btnRegistrar.addEventListener("click", () => { btnRegistrar.disabled = true; registrarSerie(ex); });
+        if (btnPular) btnPular.addEventListener("click", () => pararDescanso(ex));
       });
     }
 

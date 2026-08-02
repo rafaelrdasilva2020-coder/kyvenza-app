@@ -53,19 +53,24 @@
 
   <!-- Nav inferior -->
   <nav class="fixed bottom-0 left-0 right-0 bg-[#131313] border-t border-white/5 flex justify-around py-3">
-    <a href="home.html" class="flex flex-col items-center text-[#8b9284] text-xs font-mono">
-      <span>●</span>HOME
+    <a href="home.html" class="flex flex-col items-center gap-1 text-[10px] font-mono text-[#8b9284]">
+      <svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l9-9 9 9"/><path d="M5 10v10a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V10"/></svg>
+      HOME
     </a>
-    <a href="questionario.html" class="flex flex-col items-center text-[#8b9284] text-xs font-mono">
-      <span>●</span>AI TRAINER
+    <a href="questionario.html" class="flex flex-col items-center gap-1 text-[10px] font-mono text-[#8b9284]">
+      <svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l1.8 5.6L19 9l-5.2 1.4L12 16l-1.8-5.6L5 9l5.2-1.4z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>
+      AI TRAINER
     </a>
-    <a href="treino.html" class="flex flex-col items-center text-[#8b9284] text-xs font-mono">
-      <span>●</span>TREINO
+    <a href="treino.html" class="flex flex-col items-center gap-1 text-[10px] font-mono text-[#8b9284]">
+      <svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 7v10M18 7v10M2 10v4M22 10v4M6 12h12"/></svg>
+      TREINO
     </a>
-    <a href="evolucao.html" class="flex flex-col items-center text-[#76ff03] text-xs font-mono">
-      <span>●</span>EVOLUÇÃO
+    <a href="evolucao.html" class="flex flex-col items-center gap-1 text-[10px] font-mono text-[#76ff03]">
+      <svg class="nav-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>
+      EVOLUÇÃO
     </a>
   </nav>
+  <style>.nav-icone { width: 20px; height: 20px; }</style>
 
 <script src="js/supabase-client.js"></script>
 <script>
@@ -100,10 +105,11 @@
     if (!aluno) return;
 
     const { data: execucoes, error } = await supabaseClient
-      .from("execucoes_treino")
-      .select("data_execucao, carga_real, treino_exercicios(nome_exercicio, dia_letra, dia_nome)")
+      .from("execucoes_series")
+      .select("data_execucao, numero_serie, reps, carga, treino_exercicios(nome_exercicio, dia_letra, dia_nome)")
       .eq("aluno_id", aluno.id)
-      .order("data_execucao", { ascending: false });
+      .order("data_execucao", { ascending: false })
+      .order("numero_serie", { ascending: true });
 
     const listaEl = document.getElementById("lista-historico");
 
@@ -143,24 +149,29 @@
     listaEl.innerHTML = datasUnicas.map((dataISO) => {
       const itensDoDia = porData.get(dataISO);
 
-      // Dentro do mesmo dia calendário, agrupa por qual Treino (A/B/C) foi feito
+      // Dentro do mesmo dia calendário, agrupa por Treino (A/B/C) e depois
+      // por exercício, juntando as séries de cada um numa linha só.
       const porTreino = new Map();
       for (const item of itensDoDia) {
         const letra = item.treino_exercicios?.dia_letra || "";
         const nomeDia = item.treino_exercicios?.dia_nome || "Treino";
-        const chave = letra || nomeDia;
-        if (!porTreino.has(chave)) porTreino.set(chave, { letra, nomeDia, itens: [] });
-        porTreino.get(chave).itens.push(item);
+        const chaveTreino = letra || nomeDia;
+        if (!porTreino.has(chaveTreino)) porTreino.set(chaveTreino, { letra, nomeDia, exercicios: new Map() });
+
+        const nomeExercicio = item.treino_exercicios?.nome_exercicio || "Exercício";
+        const bloco = porTreino.get(chaveTreino);
+        if (!bloco.exercicios.has(nomeExercicio)) bloco.exercicios.set(nomeExercicio, []);
+        bloco.exercicios.get(nomeExercicio).push(item);
       }
 
       const blocosTreino = Array.from(porTreino.values()).map(bloco => `
         <div class="mt-2">
           <p class="font-mono text-xs text-[#76ff03] uppercase mb-1">${bloco.letra ? `Treino ${bloco.letra} — ` : ""}${bloco.nomeDia}</p>
-          <ul class="space-y-1">
-            ${bloco.itens.map(item => `
-              <li class="flex items-center justify-between text-sm">
-                <span class="text-[#e2e2e2]">${item.treino_exercicios?.nome_exercicio || "Exercício"}</span>
-                <span class="font-mono text-xs text-[#8b9284]">${item.carga_real || "—"}</span>
+          <ul class="space-y-1.5">
+            ${Array.from(bloco.exercicios.entries()).map(([nomeExercicio, series]) => `
+              <li class="text-sm">
+                <span class="text-[#f2f1ed]">${nomeExercicio}</span>
+                <p class="font-mono text-xs text-[#8b9284] mt-0.5">${series.map(se => `S${se.numero_serie}: ${se.reps || "--"}x ${se.carga || "livre"}`).join(" · ")}</p>
               </li>
             `).join("")}
           </ul>
