@@ -5,7 +5,7 @@
 // aparelhos dos alunos a buscarem os arquivos novos em vez de
 // continuarem servindo a versão antiga do cache.
 // =========================================================
-const CACHE_VERSION = "kyvenza-v10";
+const CACHE_VERSION = "kyvenza-v11";
 
 const ARQUIVOS_ESTATICOS = [
   "index.html",
