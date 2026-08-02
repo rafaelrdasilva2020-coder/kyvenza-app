@@ -65,6 +65,18 @@
       document.getElementById("modal-video").classList.remove("hidden");
 
       const { data: { session } } = await supabaseClient.auth.getSession();
+
+      // Se a sessão caiu por algum motivo (token expirado, storage limpo, etc.),
+      // não tenta montar a URL com "null" — manda pro login de novo, com uma
+      // mensagem clara, em vez de travar silenciosamente.
+      if (!session) {
+        container.innerHTML = `<div class="video-em-breve">SESSÃO EXPIRADA</div>`;
+        setTimeout(() => {
+          window.location.href = "index.html";
+        }, 1500);
+        return;
+      }
+
       const urlProxy = `${SUPABASE_URL}/functions/v1/workoutx-gif-proxy?exercicio_id=${exercicioId}&token=${session.access_token}`;
 
       container.innerHTML = `<img class="w-full h-full object-cover" src="${urlProxy}" alt="${nomeExercicio}"/>`;
