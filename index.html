@@ -22,26 +22,75 @@
   <img src="assets/logo.png" alt="Kyvenza" class="w-24 h-24 rounded-full mb-6 neon-border-green"/>
 
   <h1 class="font-display text-2xl font-bold mb-2 text-center">Bem-vindo ao <span class="gradient-text">Kyvenza</span></h1>
-  <p class="text-sm text-[#8b9284] text-center mb-8 max-w-xs">Digite seu e-mail cadastrado na assinatura para receber o link de acesso.</p>
+  <p id="subtitulo-login" class="text-sm text-[#8b9284] text-center mb-8 max-w-xs">Entre com o e-mail e a senha da sua assinatura.</p>
 
-  <form id="form-login" class="w-full max-w-sm space-y-4">
+  <!-- Formulário de ENTRAR (modo padrão) -->
+  <form id="form-entrar" class="w-full max-w-sm space-y-4">
     <input
       type="email"
-      id="input-email"
+      id="entrar-email"
       required
       placeholder="seu@email.com"
+      autocomplete="email"
+      class="w-full bg-transparent border-b border-[rgba(255,255,255,0.12)] focus:border-[#76ff03] outline-none py-3 text-[#f2f1ed] placeholder:text-[#8b9284] transition-colors"
+    />
+    <input
+      type="password"
+      id="entrar-senha"
+      required
+      placeholder="Sua senha"
+      autocomplete="current-password"
       class="w-full bg-transparent border-b border-[rgba(255,255,255,0.12)] focus:border-[#76ff03] outline-none py-3 text-[#f2f1ed] placeholder:text-[#8b9284] transition-colors"
     />
     <button
       type="submit"
-      id="btn-enviar"
-      class="w-full gradient-cta font-display font-semibold py-3 rounded-lg flex items-center justify-center gap-2"
+      id="btn-entrar"
+      class="w-full btn-primary font-display font-semibold py-3 rounded-lg flex items-center justify-center gap-2"
     >
-      <span id="btn-texto">ENVIAR LINK DE ACESSO</span>
+      <span id="btn-entrar-texto">ENTRAR</span>
+    </button>
+  </form>
+
+  <!-- Formulário de CRIAR SENHA (primeiro acesso) -->
+  <form id="form-criar-senha" class="hidden w-full max-w-sm space-y-4">
+    <input
+      type="email"
+      id="criar-email"
+      required
+      placeholder="seu@email.com (o mesmo da assinatura)"
+      autocomplete="email"
+      class="w-full bg-transparent border-b border-[rgba(255,255,255,0.12)] focus:border-[#76ff03] outline-none py-3 text-[#f2f1ed] placeholder:text-[#8b9284] transition-colors"
+    />
+    <input
+      type="password"
+      id="criar-senha"
+      required
+      minlength="6"
+      placeholder="Crie uma senha (mín. 6 caracteres)"
+      autocomplete="new-password"
+      class="w-full bg-transparent border-b border-[rgba(255,255,255,0.12)] focus:border-[#76ff03] outline-none py-3 text-[#f2f1ed] placeholder:text-[#8b9284] transition-colors"
+    />
+    <input
+      type="password"
+      id="criar-senha-confirmar"
+      required
+      minlength="6"
+      placeholder="Confirme a senha"
+      autocomplete="new-password"
+      class="w-full bg-transparent border-b border-[rgba(255,255,255,0.12)] focus:border-[#76ff03] outline-none py-3 text-[#f2f1ed] placeholder:text-[#8b9284] transition-colors"
+    />
+    <button
+      type="submit"
+      id="btn-criar-senha"
+      class="w-full gradient-cta-hero font-display font-semibold py-3 rounded-lg flex items-center justify-center gap-2"
+    >
+      <span id="btn-criar-senha-texto">CRIAR MINHA SENHA</span>
     </button>
   </form>
 
   <p id="mensagem" class="text-sm text-center mt-6 max-w-xs"></p>
+
+  <button id="btn-alternar-modo" class="text-xs text-[#8b9284] mt-6 underline">Primeiro acesso? Criar minha senha</button>
 
   <p class="text-xs text-[#8b9284] mt-10 text-center max-w-xs">
     Ainda não é assinante? <a href="bloqueado.html" class="neon-text-cyan underline">Conheça o Kyvenza AI</a>
@@ -58,47 +107,110 @@
       });
     });
   }
-</script>
-<script>
+
   // Se já existe sessão ativa, manda direto pra home
   (async () => {
     const { data: { session } } = await supabaseClient.auth.getSession();
     if (session) window.location.href = "home.html";
   })();
 
-  const form = document.getElementById("form-login");
-  const btn = document.getElementById("btn-enviar");
-  const btnTexto = document.getElementById("btn-texto");
+  const formEntrar = document.getElementById("form-entrar");
+  const formCriarSenha = document.getElementById("form-criar-senha");
+  const subtitulo = document.getElementById("subtitulo-login");
   const mensagem = document.getElementById("mensagem");
+  const btnAlternar = document.getElementById("btn-alternar-modo");
 
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const email = document.getElementById("input-email").value.trim();
-    btn.disabled = true;
-    btnTexto.innerHTML = '<span class="spinner"></span>';
+  let modoCriarSenha = false;
+
+  function limparMensagem() {
     mensagem.textContent = "";
     mensagem.className = "text-sm text-center mt-6 max-w-xs";
+  }
 
-    try {
-      const { error } = await supabaseClient.auth.signInWithOtp({
-        email,
-        options: { emailRedirectTo: window.location.origin + window.location.pathname.replace("index.html", "home.html") }
-      });
+  btnAlternar.addEventListener("click", () => {
+    modoCriarSenha = !modoCriarSenha;
+    limparMensagem();
 
-      if (error) {
-        mensagem.textContent = "Não foi possível enviar o link: " + error.message;
-        mensagem.classList.add("text-red-400");
-      } else {
-        mensagem.textContent = "Link enviado! Confira sua caixa de entrada (e o spam) para acessar.";
-        mensagem.classList.add("text-[#76ff03]");
-      }
-    } catch (err) {
-      console.error(err);
-      mensagem.textContent = "Erro de conexão. Tente novamente em instantes.";
+    if (modoCriarSenha) {
+      formEntrar.classList.add("hidden");
+      formCriarSenha.classList.remove("hidden");
+      subtitulo.textContent = "Primeiro acesso? Crie sua senha com o e-mail cadastrado na assinatura.";
+      btnAlternar.textContent = "Já tenho senha? Entrar";
+    } else {
+      formCriarSenha.classList.add("hidden");
+      formEntrar.classList.remove("hidden");
+      subtitulo.textContent = "Entre com o e-mail e a senha da sua assinatura.";
+      btnAlternar.textContent = "Primeiro acesso? Criar minha senha";
+    }
+  });
+
+  formEntrar.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("entrar-email").value.trim();
+    const senha = document.getElementById("entrar-senha").value;
+    const btn = document.getElementById("btn-entrar");
+    const btnTexto = document.getElementById("btn-entrar-texto");
+
+    limparMensagem();
+    btn.disabled = true;
+    btnTexto.innerHTML = '<span class="spinner"></span>';
+
+    const { error } = await supabaseClient.auth.signInWithPassword({ email, password: senha });
+
+    if (error) {
+      mensagem.textContent = "E-mail ou senha incorretos. Se ainda não criou sua senha, use o link abaixo.";
       mensagem.classList.add("text-red-400");
-    } finally {
       btn.disabled = false;
-      btnTexto.textContent = "ENVIAR LINK DE ACESSO";
+      btnTexto.textContent = "ENTRAR";
+      return;
+    }
+
+    window.location.href = "home.html";
+  });
+
+  formCriarSenha.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("criar-email").value.trim();
+    const senha = document.getElementById("criar-senha").value;
+    const senhaConfirmar = document.getElementById("criar-senha-confirmar").value;
+    const btn = document.getElementById("btn-criar-senha");
+    const btnTexto = document.getElementById("btn-criar-senha-texto");
+
+    limparMensagem();
+
+    if (senha !== senhaConfirmar) {
+      mensagem.textContent = "As senhas não coincidem.";
+      mensagem.classList.add("text-red-400");
+      return;
+    }
+
+    btn.disabled = true;
+    btnTexto.innerHTML = '<span class="spinner"></span>';
+
+    const { data, error } = await supabaseClient.auth.signUp({
+      email,
+      password: senha,
+      options: { emailRedirectTo: window.location.origin + window.location.pathname.replace("index.html", "home.html") },
+    });
+
+    btn.disabled = false;
+    btnTexto.textContent = "CRIAR MINHA SENHA";
+
+    if (error) {
+      mensagem.textContent = error.message.includes("already registered")
+        ? "Esse e-mail já tem senha criada — use a tela de Entrar."
+        : "Não foi possível criar sua senha: " + error.message;
+      mensagem.classList.add("text-red-400");
+      return;
+    }
+
+    // Se o projeto exige confirmação de e-mail, não vem sessão ainda —
+    // avisa pra checar a caixa de entrada. Se não exige, já loga direto.
+    if (data.session) {
+      window.location.href = "home.html";
+    } else {
+      mensagem.textContent = "Conta criada! Confira seu e-mail (e o spam) pra confirmar — depois é só entrar com sua senha.";
+      mensagem.classList.add("text-[#76ff03]");
     }
   });
 </script>
