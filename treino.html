@@ -125,6 +125,27 @@
     return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
   }
 
+  // Bip curto e discreto, gerado direto no navegador (sem precisar de
+  // arquivo de áudio hospedado). Toca nos últimos 3 segundos do descanso.
+  let audioCtx = null;
+  function tocarBip() {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const ganho = audioCtx.createGain();
+      osc.type = "sine";
+      osc.frequency.value = 880;
+      ganho.gain.setValueAtTime(0.15, audioCtx.currentTime);
+      ganho.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.15);
+      osc.connect(ganho);
+      ganho.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.15);
+    } catch (err) {
+      console.error("Não foi possível tocar o bip:", err);
+    }
+  }
+
   function extrairRepsAlvo(repsTexto) {
     const match = String(repsTexto || "10").match(/\d+/);
     return match ? parseInt(match[0], 10) : 10;
@@ -240,6 +261,10 @@
         const barraEl = document.getElementById(`timer-barra-${ex.id}`);
         if (textoEl) textoEl.textContent = formatarTempo(s.descansoRestante);
         if (barraEl) barraEl.style.width = `${(s.descansoRestante / s.descansoTotal) * 100}%`;
+
+        if (s.descansoRestante === 3 || s.descansoRestante === 2 || s.descansoRestante === 1) {
+          tocarBip();
+        }
 
         if (s.descansoRestante <= 0) {
           pararDescanso(ex);
