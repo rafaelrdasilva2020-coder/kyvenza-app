@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-br">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KYVENZA | Entrar</title>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#0a0a0a"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Kyvenza"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<link rel="icon" href="assets/icons/favicon.ico"/>
+<link rel="apple-touch-icon" href="assets/icons/icon-180.png"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/kyvenza.css"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- ===================================================================
+     Estilos SÓ desta tela de login (não mexe no kyvenza.css compartilhado
+     com o resto do app, pra não afetar home/treino/evolução).
+     =================================================================== -->
+<style>
+  :root{
+    --k-green:#76ff03;
+    --k-cyan:#00daf3;
+    --k-dim:#8b9284;
+  }
+  .login-page{
+    position:relative; min-height:100vh; overflow:hidden;
+    display:flex; align-items:center; justify-content:center;
+    padding:32px 20px;
+  }
+  /* fumaça esverdeada ambiente, discreta, igual identidade da página de vendas */
+  .login-glow{ position:fixed; inset:0; z-index:-1; pointer-events:none; overflow:hidden; }
+  .login-glow::before, .login-glow::after{
+    content:''; position:absolute; border-radius:50%; filter:blur(90px); opacity:0.35;
+    animation:loginDrift 22s ease-in-out infinite alternate;
+  }
+  .login-glow::before{
+    width:60vw; height:60vw; max-width:520px; max-height:520px;
+    background:radial-gradient(circle, rgba(118,255,3,0.35) 0%, rgba(118,255,3,0) 68%);
+    top:-16%; left:-18%;
+  }
+  .login-glow::after{
+    width:50vw; height:50vw; max-width:440px; max-height:440px;
+    background:radial-gradient(circle, rgba(0,218,243,0.28) 0%, rgba(0,218,243,0) 68%);
+    bottom:-14%; right:-12%; animation-delay:-11s; animation-duration:27s;
+  }
+  @keyframes loginDrift{ to{ transform:translate(5%,-6%) scale(1.12); } }
+  @media (prefers-reduced-motion: reduce){ .login-glow::before, .login-glow::after{ animation:none; } }
+
+  .login-card{
+    position:relative; width:100%; max-width:380px;
+    background:rgba(255,255,255,0.035); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+    border:1px solid rgba(255,255,255,0.09); border-radius:22px;
+    padding:40px 32px 32px;
+    box-shadow:0 40px 100px -30px rgba(0,0,0,0.7);
+  }
+  .login-eyebrow{
+    display:inline-flex; align-items:center; gap:7px;
+    font-family:'JetBrains Mono', monospace; font-size:10.5px; letter-spacing:0.12em; text-transform:uppercase;
+    color:var(--k-green); margin-bottom:18px;
+  }
+  .login-eyebrow::before{ content:''; width:6px; height:6px; border-radius:50%; background:var(--k-green); box-shadow:0 0 10px var(--k-green); }
+  .login-logo-wrap{
+    width:76px; height:76px; margin:0 auto 20px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(118,255,3,0.05);
+    box-shadow:0 0 0 1px rgba(118,255,3,0.35), 0 0 32px -6px rgba(118,255,3,0.35);
+  }
+  .login-logo-wrap img{ width:100%; height:100%; border-radius:50%; object-fit:cover; }
+
+  .login-field{ position:relative; }
+  .login-field input{
+    width:100%; background:rgba(255,255,255,0.03);
+    border:1px solid rgba(255,255,255,0.1); border-radius:11px;
+    padding:14px 16px; color:#f2f1ed; font-size:14.5px;
+    outline:none; transition:border-color .18s ease, background .18s ease;
+  }
+  .login-field input::placeholder{ color:var(--k-dim); }
+  .login-field input:focus{ border-color:rgba(118,255,3,0.55); background:rgba(118,255,3,0.04); }
+
+  .login-btn-primary{
+    width:100%; display:flex; align-items:center; justify-content:center; gap:8px;
+    font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:14.5px; letter-spacing:0.01em;
+    color:#08110a; background:linear-gradient(120deg, var(--k-green), var(--k-cyan));
+    padding:14px; border-radius:11px; border:none; cursor:pointer;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .login-btn-primary:hover{ transform:translateY(-1px); box-shadow:0 10px 28px -8px rgba(118,255,3,0.45); }
+  .login-btn-primary:disabled{ opacity:0.7; cursor:default; transform:none; }
+
+  .login-btn-secondary{
+    width:100%; text-align:center;
+    font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:14px;
+    color:#f2f1ed; background:transparent; border:1px solid rgba(255,255,255,0.14);
+    padding:13px; border-radius:11px; cursor:pointer; transition:border-color .18s ease, background .18s ease;
+  }
+  .login-btn-secondary:hover{ border-color:rgba(255,255,255,0.32); background:rgba(255,255,255,0.04); }
+
+  .login-divider{ height:1px; background:rgba(255,255,255,0.08); margin:26px 0 20px; }
+  .login-footer-note{ text-align:center; font-size:11.5px; color:var(--k-dim); margin-top:22px; line-height:1.6; }
+  .login-switch{ display:block; width:100%; text-align:center; font-size:12.5px; color:var(--k-dim); background:none; border:none; text-decoration:underline; cursor:pointer; margin-top:20px; }
+  .login-msg{ font-size:13px; text-align:center; margin-top:18px; min-height:0; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="login-glow"></div>
+
+<div class="login-page">
+  <div class="login-card">
+
+    <div style="text-align:center;">
+      <div class="login-logo-wrap">
+        <img src="assets/logo.png" alt="Kyvenza"/>
+      </div>
+      <span class="login-eyebrow">Treinos com IA</span>
+      <h1 style="font-family:'Space Grotesk',sans-serif; font-size:22px; font-weight:700; margin-bottom:8px;">
+        Bem-vindo ao <span class="gradient-text">Kyvenza</span>
+      </h1>
+      <p id="subtitulo-login" style="font-size:13.5px; color:var(--k-dim); max-width:280px; margin:0 auto 28px; line-height:1.5;">
+        Entre com o e-mail e a senha da sua assinatura.
+      </p>
+    </div>
+
+    <!-- Formulário de ENTRAR (modo padrão) -->
+    <form id="form-entrar" style="display:flex; flex-direction:column; gap:14px;">
+      <div class="login-field">
+        <input
+          type="email"
+          id="entrar-email"
+          required
+          placeholder="seu@email.com"
+          autocomplete="email"
+        />
+      </div>
+      <div class="login-field">
+        <input
+          type="password"
+          id="entrar-senha"
+          required
+          placeholder="Sua senha"
+          autocomplete="current-password"
+        />
+      </div>
+      <button type="submit" id="btn-entrar" class="login-btn-primary">
+        <span id="btn-entrar-texto">ENTRAR</span>
+      </button>
+    </form>
+
+    <!-- Formulário de CRIAR SENHA (primeiro acesso) -->
+    <form id="form-criar-senha" class="hidden" style="display:flex; flex-direction:column; gap:14px;">
+      <div class="login-field">
+        <input
+          type="email"
+          id="criar-email"
+          required
+          placeholder="seu@email.com (o mesmo da assinatura)"
+          autocomplete="email"
+        />
+      </div>
+      <div class="login-field">
+        <input
+          type="password"
+          id="criar-senha"
+          required
+          minlength="6"
+          placeholder="Crie uma senha (mín. 6 caracteres)"
+          autocomplete="new-password"
+        />
+      </div>
+      <div class="login-field">
+        <input
+          type="password"
+          id="criar-senha-confirmar"
+          required
+          minlength="6"
+          placeholder="Confirme a senha"
+          autocomplete="new-password"
+        />
+      </div>
+      <button type="submit" id="btn-criar-senha" class="login-btn-primary">
+        <span id="btn-criar-senha-texto">CRIAR MINHA SENHA</span>
+      </button>
+    </form>
+
+    <p id="mensagem" class="login-msg"></p>
+
+    <button id="btn-alternar-modo" class="login-switch">Primeiro acesso? Criar minha senha</button>
+
+    <div class="login-divider"></div>
+
+    <p class="login-footer-note">
+      Ainda não é assinante?<br>
+      <a href="bloqueado.html" style="color:var(--k-cyan); text-decoration:underline;">Conheça o Kyvenza AI</a>
+    </p>
+  </div>
+</div>
+
+<script src="js/supabase-client.js"></script>
+<script>
+// Registra o Service Worker — necessário pro navegador considerar o site
+// "instalável" (Chrome/Android) e pra funcionar offline/cache.
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch((err) => {
+      console.error("Falha ao registrar o Service Worker:", err);
+    });
+  });
+}
+
+// Se já existe sessão ativa, manda direto pra home
+(async () => {
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (session) window.location.href = "home.html";
+})();
+
+const formEntrar = document.getElementById("form-entrar");
+const formCriarSenha = document.getElementById("form-criar-senha");
+const subtitulo = document.getElementById("subtitulo-login");
+const mensagem = document.getElementById("mensagem");
+const btnAlternar = document.getElementById("btn-alternar-modo");
+let modoCriarSenha = false;
+
+function limparMensagem() {
+  mensagem.textContent = "";
+  mensagem.className = "login-msg";
+}
+
+btnAlternar.addEventListener("click", () => {
+  modoCriarSenha = !modoCriarSenha;
+  limparMensagem();
+  if (modoCriarSenha) {
+    formEntrar.classList.add("hidden");
+    formCriarSenha.classList.remove("hidden");
+    subtitulo.textContent = "Primeiro acesso? Crie sua senha com o e-mail cadastrado na assinatura.";
+    btnAlternar.textContent = "Já tenho senha? Entrar";
+  } else {
+    formCriarSenha.classList.add("hidden");
+    formEntrar.classList.remove("hidden");
+    subtitulo.textContent = "Entre com o e-mail e a senha da sua assinatura.";
+    btnAlternar.textContent = "Primeiro acesso? Criar minha senha";
+  }
+});
+
+formEntrar.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const email = document.getElementById("entrar-email").value.trim();
+  const senha = document.getElementById("entrar-senha").value;
+  const btn = document.getElementById("btn-entrar");
+  const btnTexto = document.getElementById("btn-entrar-texto");
+
+  limparMensagem();
+  btn.disabled = true;
+  btnTexto.innerHTML = '<span class="spinner"></span>';
+
+  const { error } = await supabaseClient.auth.signInWithPassword({ email, password: senha });
+
+  if (error) {
+    mensagem.textContent = "E-mail ou senha incorretos. Se ainda não criou sua senha, use o link abaixo.";
+    mensagem.classList.add("text-red-400");
+    btn.disabled = false;
+    btnTexto.textContent = "ENTRAR";
+    return;
+  }
+
+  window.location.href = "home.html";
+});
+
+formCriarSenha.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const email = document.getElementById("criar-email").value.trim();
+  const senha = document.getElementById("criar-senha").value;
+  const senhaConfirmar = document.getElementById("criar-senha-confirmar").value;
+  const btn = document.getElementById("btn-criar-senha");
+  const btnTexto = document.getElementById("btn-criar-senha-texto");
+
+  limparMensagem();
+
+  if (senha !== senhaConfirmar) {
+    mensagem.textContent = "As senhas não coincidem.";
+    mensagem.classList.add("text-red-400");
+    return;
+  }
+
+  btn.disabled = true;
+  btnTexto.innerHTML = '<span class="spinner"></span>';
+
+  const { data, error } = await supabaseClient.auth.signUp({
+    email,
+    password: senha,
+    options: { emailRedirectTo: window.location.origin + window.location.pathname.replace("index.html", "home.html") },
+  });
+
+  btn.disabled = false;
+  btnTexto.textContent = "CRIAR MINHA SENHA";
+
+  if (error) {
+    mensagem.textContent = error.message.includes("already registered")
+      ? "Esse e-mail já tem senha criada — use a tela de Entrar."
+      : "Não foi possível criar sua senha: " + error.message;
+    mensagem.classList.add("text-red-400");
+    return;
+  }
+
+  // Se o projeto exige confirmação de e-mail, não vem sessão ainda —
+  // avisa pra checar a caixa de entrada. Se não exige, já loga direto.
+  if (data.session) {
+    window.location.href = "home.html";
+  } else {
+    mensagem.textContent = "Conta criada! Confira seu e-mail (e o spam) pra confirmar — depois é só entrar com sua senha.";
+    mensagem.classList.add("text-[#76ff03]");
+  }
+});
+</script>
+</body>
+</html>
