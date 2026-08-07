@@ -89,6 +89,15 @@
     document.getElementById("modal-titulo").textContent = nomeExercicio;
     const container = document.getElementById("modal-video-container");
 
+    // Prioridade: link manual do YouTube (escolhido de propósito pelo admin)
+    // vale mais que o gif automático da WorkoutX. Só cai no gif se não
+    // existir vídeo manual cadastrado pra esse exercício.
+    if (youtubeId) {
+      container.innerHTML = `<iframe class="w-full h-full" src="https://www.youtube.com/embed/${youtubeId}?autoplay=1" title="${nomeExercicio}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+      document.getElementById("modal-video").classList.remove("hidden");
+      return;
+    }
+
     if (workoutxExerciseId) {
       container.innerHTML = `<div class="video-em-breve">CARREGANDO...</div>`;
       document.getElementById("modal-video").classList.remove("hidden");
@@ -106,11 +115,7 @@
       return;
     }
 
-    if (youtubeId) {
-      container.innerHTML = `<iframe class="w-full h-full" src="https://www.youtube.com/embed/${youtubeId}?autoplay=1" title="${nomeExercicio}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-    } else {
-      container.innerHTML = `<div class="video-em-breve">VÍDEO EM BREVE</div>`;
-    }
+    container.innerHTML = `<div class="video-em-breve">VÍDEO EM BREVE</div>`;
     document.getElementById("modal-video").classList.remove("hidden");
   }
 
