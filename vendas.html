@@ -107,13 +107,6 @@ nav .wrap{display:flex; align-items:center; justify-content:space-between; heigh
 }
 @media (prefers-reduced-motion: reduce){ .site-bg-smoke::before, .site-bg-smoke::after{ animation:none; } }
 
-/* ---------- EYEBROW ---------- */
-.eyebrow{
-  font-family:var(--mono); font-size:12px; letter-spacing:0.12em; text-transform:uppercase;
-  color:var(--green); display:inline-flex; align-items:center; gap:8px; margin-bottom:18px;
-}
-.eyebrow::before{content:''; width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 12px var(--green);}
-
 /* ---------- EFEITO SPECULAR (brilho na borda que segue o mouse, aplicado nos botões) ---------- */
 .specular{ position:relative; isolation:isolate; }
 .specular::before, .specular::after{
@@ -123,12 +116,10 @@ nav .wrap{display:flex; align-items:center; justify-content:space-between; heigh
   -webkit-mask-composite: xor; mask-composite: exclude;
 }
 .specular::after{
-  /* contorno de base, sempre visível e discreto */
   background: rgba(255,255,255,0.16);
   z-index:1;
 }
 .specular::before{
-  /* brilho móvel que acompanha o mouse */
   background: conic-gradient(
     from calc(var(--spec-ang, 0deg) - 45deg),
     transparent 0deg,
@@ -142,14 +133,14 @@ nav .wrap{display:flex; align-items:center; justify-content:space-between; heigh
 }
 @media (prefers-reduced-motion: reduce){ .specular::before{ display:none; } }
 @media (hover: none){ .specular::before{ display:none; } }
-/* ---------- HERO (texto centralizado, sobre o vídeo de fundo fixo) ---------- */
+
+/* ---------- HERO ---------- */
 .hero-stage{
   position:relative; min-height:100vh;
   display:flex; align-items:center; justify-content:flex-start;
   padding:120px 6vw 80px; text-align:left;
 }
 .hero-stage::before{
-  /* escurecido só do lado esquerdo, onde o texto fica — o resto do vídeo respira limpo */
   content:''; position:absolute; inset:0; z-index:1; pointer-events:none;
   background:linear-gradient(100deg, rgba(5,6,5,0.82) 0%, rgba(5,6,5,0.6) 30%, rgba(5,6,5,0.15) 55%, rgba(5,6,5,0) 72%);
 }
@@ -192,7 +183,7 @@ nav .wrap{display:flex; align-items:center; justify-content:space-between; heigh
   .hero-btn-row, .stat-row{ justify-content:center; }
 }
 
-/* ---------- TRUST ROW (checkmarks logo abaixo do hero) ---------- */
+/* ---------- TRUST ROW ---------- */
 .trust-row{
   padding:36px 0 44px; border-bottom:1px solid var(--border);
 }
@@ -200,7 +191,7 @@ nav .wrap{display:flex; align-items:center; justify-content:space-between; heigh
 .trust-item{display:flex; align-items:flex-start; gap:10px; font-size:14px; color:var(--text-dim); max-width:260px;}
 .trust-item svg{width:17px; height:17px; color:var(--green); flex-shrink:0; margin-top:2px;}
 
-/* ---------- COMO FUNCIONA (3 passos numerados) ---------- */
+/* ---------- COMO FUNCIONA ---------- */
 .steps-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
 .step-card{background:var(--bg-elev); border:1px solid var(--border); border-radius:16px; padding:30px 28px;}
 .step-num{font-family:var(--display); font-weight:700; font-size:30px; background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent; margin-bottom:18px;}
@@ -214,7 +205,7 @@ section{position:relative; padding:110px 0;}
 .section-head h2{ font-family:var(--display); font-weight:600; font-size:clamp(26px,3.6vw,38px); line-height:1.15; letter-spacing:-0.01em; }
 .section-head p{color:var(--text-dim); font-size:16px; margin-top:14px; max-width:520px;}
 
-/* ---------- BENEFITS (4 cards: o que a IA faz) ---------- */
+/* ---------- BENEFITS ---------- */
 .bento{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden;}
 .bento-item{background:var(--bg-elev); padding:28px 24px; min-height:190px; display:flex; flex-direction:column; gap:14px;}
 .bento-item .ico{width:30px; height:30px; color:var(--green);}
@@ -223,7 +214,7 @@ section{position:relative; padding:110px 0;}
 @media (max-width:940px){ .bento{grid-template-columns:repeat(2,1fr);} }
 @media (max-width:560px){ .bento{grid-template-columns:1fr;} }
 
-/* ---------- APP SHOWCASE: 2 celulares lado a lado ---------- */
+/* ---------- APP SHOWCASE ---------- */
 .app-demo{display:grid; grid-template-columns:0.85fr 1.15fr; gap:56px; align-items:center;}
 .app-demo-text p{color:var(--text-dim); font-size:15.5px; margin-bottom:26px; max-width:440px;}
 .app-demo-list{list-style:none; display:flex; flex-direction:column; gap:14px;}
@@ -235,23 +226,6 @@ section{position:relative; padding:110px 0;}
   padding:16px 14px; font-family:var(--mono); box-shadow:0 30px 70px -25px rgba(0,0,0,0.7);
 }
 .phone-mock.p2{ margin-left:-60px; margin-top:56px; }
-.pm-topbar{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;}
-.pm-brand{font-family:var(--display); font-weight:700; font-size:11px; color:var(--green);}
-.pm-back{color:var(--text-dimmer); font-size:11px;}
-.pm-hello{font-family:var(--display); font-weight:700; font-size:14px; margin-bottom:3px;}
-.pm-sub{font-size:8.5px; color:var(--text-dimmer); margin-bottom:14px;}
-.pm-card{background:#0e100e; border:1px solid #1a1e19; border-radius:10px; padding:12px;}
-.pm-tag{display:inline-block; font-size:7px; letter-spacing:0.06em; color:var(--green); border:1px solid rgba(124,250,61,0.35); border-radius:4px; padding:2px 6px; margin-bottom:7px;}
-.pm-title{font-size:9.5px; font-weight:600; color:var(--text); line-height:1.3; margin-bottom:6px;}
-.pm-hint{font-size:7px; color:var(--text-dimmer); line-height:1.4; margin-bottom:10px;}
-.pm-btn{background:var(--green); color:#08110a; text-align:center; font-size:7.5px; font-weight:700; padding:7px; border-radius:5px;}
-.pm-ex{background:#0e100e; border:1px solid #1a1e19; border-radius:9px; padding:9px 10px; margin-bottom:8px;}
-.pm-ex-name{font-size:8.5px; font-weight:600; color:var(--text); margin-bottom:3px;}
-.pm-ex-desc{font-size:6.5px; color:var(--text-dimmer); line-height:1.4; margin-bottom:6px;}
-.pm-ex-tags{display:flex; gap:5px;}
-.pm-ex-tags span{flex:1; background:#141712; border-radius:5px; padding:4px 6px;}
-.pm-ex-tags .k{display:block; font-size:5.5px; color:var(--text-dimmer); letter-spacing:0.04em;}
-.pm-ex-tags .v{display:block; font-size:7.5px; color:var(--text); font-weight:600; margin-top:1px;}
 @media (max-width:900px){
   .app-demo{grid-template-columns:1fr; gap:44px;}
   .phones-wrap{margin-top:10px;}
@@ -279,16 +253,20 @@ section{position:relative; padding:110px 0;}
 .plan-feat li{font-size:13.5px; color:var(--text-dim); padding:7px 0; display:flex; gap:9px; align-items:flex-start; border-top:1px solid rgba(255,255,255,0.04);}
 .plan-feat li:first-child{border-top:none;}
 .plan-feat li::before{content:'✓'; color:var(--green); font-weight:700; flex-shrink:0;}
+.plan-cta-group{display:flex; flex-direction:column; gap:10px;}
+.plan-cta-label{font-family:var(--mono); font-size:10px; letter-spacing:0.04em; color:var(--text-dimmer); text-transform:uppercase;}
 .plan-cta{
-  text-align:center; font-family:var(--mono); font-size:13px; font-weight:600; letter-spacing:0.02em;
+  display:block; text-align:center; font-family:var(--mono); font-size:13px; font-weight:600; letter-spacing:0.02em;
   padding:13px; border-radius:9px; text-decoration:none; cursor:pointer; border:1px solid var(--border-strong); color:var(--text);
   transition:all .15s ease;
 }
-.plan.hi .plan-cta{background:var(--grad); color:#08110a; border:none;}
+.plan.hi .plan-cta.principal{background:var(--grad); color:#08110a; border:none;}
+.plan-cta.principal{background:var(--grad); color:#08110a; border:none;}
+.plan-cta.secundario{background:transparent; border:1px solid rgba(255,255,255,0.16); color:var(--text-dim); font-weight:500;}
 .plan-cta:hover{transform:translateY(-1px);}
 .pay-note{text-align:center; font-family:var(--mono); font-size:12px; color:var(--text-dimmer); margin-top:24px;}
 
-/* ---------- ACCORDION (dúvidas) — vidro fosco translúcido, elegante ---------- */
+/* ---------- ACCORDION ---------- */
 .acc{ display:flex; flex-direction:column; gap:12px; }
 .acc-item{
   background:rgba(255,255,255,0.045); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
@@ -351,10 +329,9 @@ footer .fine{font-family:var(--mono); font-size:11.5px; color:var(--text-dimmer)
 }
 @media (prefers-reduced-motion: reduce){
   html{scroll-behavior:auto;}
-  .ring{animation:none;}
 }
 
-/* ---------- TRANSPARÊNCIA (3 cards + links legais) ---------- */
+/* ---------- TRANSPARÊNCIA ---------- */
 .trust-cards{display:grid; grid-template-columns:repeat(3,1fr); gap:20px; margin-bottom:32px;}
 .trust-card{background:var(--bg-elev); border:1px solid var(--border); border-radius:16px; padding:28px 26px;}
 .trust-card svg{width:26px; height:26px; color:var(--cyan); margin-bottom:16px;}
@@ -364,13 +341,13 @@ footer .fine{font-family:var(--mono); font-size:11.5px; color:var(--text-dimmer)
 .legal-links a{color:var(--cyan); text-decoration:underline;}
 @media (max-width:860px){ .trust-cards{grid-template-columns:1fr;} }
 
-/* ---------- GLITCH HEADING (leve aberração cromática, estilo referência) ---------- */
+/* ---------- GLITCH HEADING ---------- */
 .glitch-heading{
   position:relative; color:var(--text);
   text-shadow: -1.5px 0 rgba(255,60,80,0.5), 1.5px 0 rgba(63,224,232,0.5);
 }
 
-/* ---------- FOOTER (3 colunas) ---------- */
+/* ---------- FOOTER ---------- */
 .footer-grid{display:grid; grid-template-columns:1.3fr 1fr 1.3fr; gap:40px; padding:56px 0 32px;}
 .footer-brand p{font-size:13px; color:var(--text-dim); line-height:1.6; margin-top:14px; max-width:280px;}
 .footer-col h4{font-family:var(--mono); font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-dimmer); margin-bottom:16px;}
@@ -385,17 +362,7 @@ footer .fine{font-family:var(--mono); font-size:11.5px; color:var(--text-dimmer)
 
 <!-- ============================================================ -->
 <!-- ==========  EDITE OS TEXTOS DO SITE AQUI EMBAIXO  =========== -->
-<!-- ==========  (é a ÚNICA parte que você precisa mexer) ======== -->
 <!-- ============================================================ -->
-<!--
-  COMO USAR:
-  - Troque apenas o que estiver ENTRE ASPAS " ".
-  - Não apague vírgulas, dois-pontos ( : ) ou chaves/colchetes ({ } [ ]).
-  - Pra dar uma quebra de linha dentro de um texto, use <br>
-  - Pra deixar uma palavra colorida (verde/ciano), envolva com:
-      <span class="accent">palavra</span>
-  - Depois de editar, é só salvar o arquivo e atualizar a página no navegador.
--->
 <script>
 window.SITE = {
 
@@ -409,7 +376,7 @@ window.SITE = {
     headline: "Pare de treinar no <span class=\"accent\">achismo</span>. Treine com um plano feito para o seu corpo.",
     subheadline: "O KYVENZA gera o seu treino completo — divisão, exercícios, séries, repetições e carga sugerida — a partir do seu objetivo, nível e tempo disponível. Tudo no celular, pronto para usar na academia hoje.",
     ctaPrimary: "Quero meu treino personalizado",
-    ctaMicro: "A partir de R$ 29,90/mês · Cancele quando quiser"
+    ctaMicro: "A partir de R$ 39,90/mês · 7 dias grátis no cartão"
   },
 
   confianca: {
@@ -422,7 +389,6 @@ window.SITE = {
 
   iaFaz: {
     headline: "O que a IA faz por você",
-    // icone pode ser: cerebro, halteres, cronometro, grafico
     itens: [
       { icone: "cerebro",   titulo: "IA que entende você",     texto: "O treino é montado a partir do seu objetivo, nível, tempo disponível e limitações informadas." },
       { icone: "halteres",  titulo: "Séries, reps e carga",     texto: "Cada exercício vem com séries x repetições e faixa de carga sugerida em % de 1RM." },
@@ -456,7 +422,7 @@ window.SITE = {
   planos: {
     eyebrow: "Planos",
     headline: "Escolha sua assinatura",
-    subheadline: "Assinatura recorrente, cobrada automaticamente até você cancelar. Sem fidelidade e com 7 dias de arrependimento garantidos por lei.",
+    subheadline: "No cartão: 7 dias grátis, só cobra depois. No Pix: pagamento à vista com dias extras de acesso incluídos. Sem fidelidade — cancele quando quiser.",
     lista: [
       {
         badge: "",
@@ -472,7 +438,10 @@ window.SITE = {
           "Acesso pelo celular",
           "Cancele quando quiser"
         ],
-        cta: "Assinar Mensal"
+        ctaCartaoTexto: "Assinar no cartão · 7 dias grátis",
+        ctaCartaoUrl: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=e8002f293ba94491bf42299a663bce9b",
+        ctaPixTexto: "Pagar no Pix · 37 dias de acesso",
+        ctaPixUrl: "https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=42507091-426ce30e-df18-4572-94f2-e51dae1d1c40"
       },
       {
         badge: "Mais escolhido",
@@ -487,7 +456,10 @@ window.SITE = {
           "Histórico completo de treinos",
           "Suporte por e-mail"
         ],
-        cta: "Assinar Trimestral"
+        ctaCartaoTexto: "Assinar no cartão · 7 dias grátis",
+        ctaCartaoUrl: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=a65217d71c2942c8a916deff0515e410",
+        ctaPixTexto: "Pagar no Pix · 97 dias de acesso",
+        ctaPixUrl: "https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=42507091-f9782c01-ebba-4535-93d9-15536fae28d0"
       },
       {
         badge: "",
@@ -502,7 +474,10 @@ window.SITE = {
           "Histórico completo de treinos",
           "Suporte por e-mail"
         ],
-        cta: "Assinar Semestral"
+        ctaCartaoTexto: "Assinar no cartão · 7 dias grátis",
+        ctaCartaoUrl: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=7d557ce4378e4d3f8625e1b61fab4142",
+        ctaPixTexto: "Pagar no Pix · 187 dias de acesso",
+        ctaPixUrl: "https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=42507091-af9e3c16-4bde-4acf-859e-0568c881d770"
       }
     ]
   },
@@ -525,7 +500,8 @@ window.SITE = {
       { pergunta: "O KYVENZA substitui um personal trainer ou um médico?", resposta: "Não. O KYVENZA gera sugestões de treino com apoio de IA, com base nas informações que você fornece — isso tem caráter educacional e não substitui a avaliação de um médico ou a orientação de um profissional de Educação Física habilitado." },
       { pergunta: "Preciso de academia?", resposta: "A maioria dos treinos é pensada para academia, com exercícios de musculação tradicionais. Se você treina em casa com equipamentos limitados, informe isso no diagnóstico para receber sugestões adequadas." },
       { pergunta: "Existe garantia de resultado?", resposta: "Não prometemos resultados específicos. Resultados variam conforme genética, alimentação, sono e consistência no treino — o KYVENZA organiza e orienta, mas o resultado depende de vários fatores individuais." },
-      { pergunta: "Como funciona o cancelamento?", resposta: "A assinatura é recorrente e você pode cancelar quando quiser, direto no app ou pelo suporte. Não há fidelidade, e a lei garante 7 dias de arrependimento a partir da contratação." },
+      { pergunta: "Qual a diferença entre pagar no cartão e no Pix?", resposta: "No cartão, você tem 7 dias grátis antes da primeira cobrança, e depois a renovação acontece sozinha a cada ciclo. No Pix, o pagamento é à vista e você ganha dias extras de acesso (equivalentes aos 7 dias grátis do cartão) — mas a renovação não é automática, você paga de novo quando o período acabar." },
+      { pergunta: "Como funciona o cancelamento?", resposta: "No cartão, a assinatura é recorrente e você pode cancelar quando quiser, direto no app ou pelo suporte. Não há fidelidade, e a lei garante 7 dias de arrependimento a partir da contratação. No Pix, não há cobrança recorrente — o acesso simplesmente termina no fim do período pago." },
       { pergunta: "Meus dados estão protegidos?", resposta: "Sim. Seus dados são tratados conforme a LGPD, com conexão criptografada e acesso controlado. Você pode solicitar acesso, correção ou exclusão dos seus dados a qualquer momento." }
     ]
   },
@@ -534,7 +510,7 @@ window.SITE = {
     headline: "Seu próximo ciclo pode começar <span class=\"accent\">hoje</span>.",
     texto: "Responda o diagnóstico e receba o primeiro treino gerado pela IA em minutos.",
     cta: "Criar meu treino agora",
-    micro: "Assinatura recorrente · Cancele quando quiser · 7 dias de arrependimento"
+    micro: "Cartão: 7 dias grátis · Pix: pagamento à vista com dias extras · Cancele quando quiser"
   },
 
   footer: {
@@ -559,10 +535,8 @@ window.SITE = {
 </script>
 <!-- ============================================================ -->
 <!-- ==============  FIM DA ÁREA DE TEXTOS  ======================= -->
-<!-- ==========  (daqui pra baixo é só estrutura/design) ========== -->
 <!-- ============================================================ -->
 
-<!-- ================= FUNDO FIXO (foto do atleta, persiste em toda a página) ================= -->
 <div class="site-bg">
   <img class="site-bg-img" src="produtos para vendas, app academia, pagina de vendas/assets/hero-athlete.webp" alt="" />
 </div>
@@ -588,7 +562,6 @@ window.SITE = {
   </div>
 </nav>
 
-<!-- ================= HERO ================= -->
 <div class="hero-stage">
   <div class="hero-copy">
     <span class="eyebrow" data-t="hero.eyebrow"></span>
@@ -601,13 +574,10 @@ window.SITE = {
   </div>
 </div>
 
-<!-- ================= TRUST ROW ================= -->
 <div class="trust-row">
   <div class="wrap" id="trustRow"></div>
 </div>
 
-<!-- ================= BIG TYPE DIVIDER ================= -->
-<!-- ================= O QUE A IA FAZ POR VOCÊ ================= -->
 <section id="beneficios">
   <div class="wrap">
     <div class="section-head reveal">
@@ -617,7 +587,6 @@ window.SITE = {
   </div>
 </section>
 
-<!-- ================= COMO FUNCIONA (3 passos) ================= -->
 <section id="comoFunciona">
   <div class="wrap">
     <div class="section-head reveal">
@@ -628,7 +597,6 @@ window.SITE = {
   </div>
 </section>
 
-<!-- ================= DENTRO DO APP (2 celulares, imagens reais) ================= -->
 <section id="vitrine">
   <div class="wrap app-demo">
     <div class="app-demo-text reveal">
@@ -644,7 +612,6 @@ window.SITE = {
   </div>
 </section>
 
-<!-- ================= PRICING ================= -->
 <section id="planos">
   <div class="wrap">
     <div class="section-head reveal">
@@ -656,7 +623,6 @@ window.SITE = {
   </div>
 </section>
 
-<!-- ================= TRANSPARÊNCIA E SEGURANÇA ================= -->
 <section id="transparencia">
   <div class="wrap">
     <div class="section-head reveal">
@@ -668,7 +634,6 @@ window.SITE = {
   </div>
 </section>
 
-<!-- ================= DÚVIDAS (FAQ) ================= -->
 <section id="faq">
   <div class="wrap" style="max-width:760px;">
     <div class="section-head reveal">
@@ -679,7 +644,6 @@ window.SITE = {
   </div>
 </section>
 
-<!-- ================= FINAL CTA ================= -->
 <section class="final-cta">
   <div class="wrap" style="max-width:640px;">
     <h2 class="reveal" data-t="finalCta.headline"></h2>
@@ -714,25 +678,20 @@ window.SITE = {
 </footer>
 
 <script>
-// ---------- Biblioteca de ícones ----------
 const ICONS = {
-  // usados nos 4 cards "o que a IA faz"
   cerebro:    '<path d="M9.5 2A3.5 3.5 0 0 0 6 5.5v.09A3 3 0 0 0 4 8.5v1A3 3 0 0 0 2 12.4v.2a3 3 0 0 0 2.2 2.9A3.5 3.5 0 0 0 7.5 20h.5a2 2 0 0 0 2-2V5.5A3.5 3.5 0 0 0 9.5 2Z"/><path d="M14.5 2A3.5 3.5 0 0 1 18 5.5v.09A3 3 0 0 1 20 8.5v1A3 3 0 0 1 22 12.4v.2a3 3 0 0 1-2.2 2.9A3.5 3.5 0 0 1 16.5 20H16a2 2 0 0 1-2-2V5.5A3.5 3.5 0 0 1 14.5 2Z"/>',
   halteres:   '<path d="M6 7v10M18 7v10M2 10v4M22 10v4M6 12h12"/>',
   cronometro: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6M11 2.6L9 5"/>',
   grafico:    '<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>',
-  // usados na seção "Transparência e segurança"
   escudo:  '<path d="M12 2l8 4v6c0 5-3.4 8.7-8 10-4.6-1.3-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/>',
   grafico2:'<path d="M3 3v18h18M7 14l4-4 3 3 5-6"/>',
   cadeado: '<rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>'
 };
 
-// ---------- Helper: busca um valor dentro de SITE usando "caminho.pontuado" ----------
 function getPath(obj, path){
   return path.split('.').reduce((o,k)=> (o == null ? undefined : o[k]), obj);
 }
 
-// ---------- Preenche todo elemento com [data-t] a partir de SITE ----------
 function applyTextContent(){
   document.querySelectorAll('[data-t]').forEach(el=>{
     const val = getPath(window.SITE, el.getAttribute('data-t'));
@@ -740,11 +699,9 @@ function applyTextContent(){
   });
 }
 
-// ---------- Monta as seções que são listas (repetíveis) ----------
 function renderRepeatables(){
   const S = window.SITE;
 
-  // Trust row (checkmarks logo abaixo do hero)
   const trustRow = document.getElementById('trustRow');
   S.confianca.itens.forEach(txt=>{
     trustRow.insertAdjacentHTML('beforeend', `
@@ -754,7 +711,6 @@ function renderRepeatables(){
       </div>`);
   });
 
-  // O que a IA faz por você (4 cards)
   const iaGrid = document.getElementById('iaFazGrid');
   S.iaFaz.itens.forEach(item=>{
     const iconSvg = ICONS[item.icone] || ICONS.cerebro;
@@ -766,7 +722,6 @@ function renderRepeatables(){
       </div>`);
   });
 
-  // Como funciona (3 passos numerados)
   const steps = document.getElementById('stepsGrid');
   S.comoFunciona.passos.forEach((p, i)=>{
     steps.insertAdjacentHTML('beforeend', `
@@ -777,7 +732,6 @@ function renderRepeatables(){
       </div>`);
   });
 
-  // Dentro do app (lista de recursos ao lado dos celulares)
   const appList = document.getElementById('appDemoList');
   S.dentroApp.itens.forEach(txt=>{
     appList.insertAdjacentHTML('beforeend', `
@@ -787,7 +741,7 @@ function renderRepeatables(){
       </li>`);
   });
 
-  // Planos (pricing)
+  // Planos (pricing) — cada plano agora tem 2 botões: Cartão (trial) e Pix (à vista)
   const grid = document.getElementById('pricingGrid');
   S.planos.lista.forEach(p=>{
     const featHtml = p.recursos.map(r=>`<li>${r}</li>`).join('');
@@ -798,11 +752,13 @@ function renderRepeatables(){
         <div class="plan-cycle" style="margin-bottom:14px;">${p.desc}</div>
         <div class="plan-price">${p.preco}<span>${p.precoSufixo}</span></div>
         <ul class="plan-feat" style="margin-top:22px;">${featHtml}</ul>
-        <a href="#" class="plan-cta">${p.cta}</a>
+        <div class="plan-cta-group">
+          <a href="${p.ctaCartaoUrl}" class="plan-cta principal" target="_blank" rel="noopener">${p.ctaCartaoTexto}</a>
+          <a href="${p.ctaPixUrl}" class="plan-cta secundario" target="_blank" rel="noopener">${p.ctaPixTexto}</a>
+        </div>
       </div>`);
   });
 
-  // Transparência e segurança (3 cards)
   const trustCards = document.getElementById('trustCards');
   S.transparencia.itens.forEach(item=>{
     const iconSvg = ICONS[item.icone] || ICONS.escudo;
@@ -814,7 +770,6 @@ function renderRepeatables(){
       </div>`);
   });
 
-  // Accordion genérico (FAQ)
   function renderAccordion(containerId, itens){
     const el = document.getElementById(containerId);
     itens.forEach(it=>{
@@ -827,7 +782,6 @@ function renderRepeatables(){
   }
   renderAccordion('duvidasAcc', S.duvidas.itens);
 
-  // Rodapé (colunas institucional + transparência)
   const footerInst = document.getElementById('footerInstitucional');
   S.footer.institucional.forEach(link=>{
     footerInst.insertAdjacentHTML('beforeend', `<a href="${link.href}">${link.texto}</a>`);
@@ -840,18 +794,17 @@ function renderRepeatables(){
 
 applyTextContent();
 renderRepeatables();
-applyTextContent(); // roda de novo pra pegar nav.logo duplicado no footer
+applyTextContent();
 
-// ---------- Efeito Specular — brilho na borda que segue o mouse, em todos os botões ----------
 (function(){
-  const PROXIMITY = 250;  // px: distância a partir da qual o brilho começa a aparecer
-  const SPEED = 0.35;     // suavização do movimento/opacidade (0 a 1, maior = mais rápido)
+  const PROXIMITY = 250;
+  const SPEED = 0.35;
 
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const noHover = window.matchMedia('(hover: none)').matches;
-  if(reduced || noHover) return; // em touch/mobile ou "reduzir movimento", não ativa
+  if(reduced || noHover) return;
 
-  const buttons = document.querySelectorAll('.btn-primary, .nav-cta, .plan-cta');
+  const buttons = document.querySelectorAll('.btn-primary, .nav-cta, .plan-cta.principal');
   const state = [];
   buttons.forEach(el=>{
     el.classList.add('specular');
@@ -873,7 +826,6 @@ applyTextContent(); // roda de novo pra pegar nav.logo duplicado no footer
       const targetAng = Math.atan2(dy, dx) * 180 / Math.PI + 90;
 
       st.op += (targetOp - st.op) * SPEED;
-      // interpola o ângulo pelo caminho mais curto (evita girar "pro lado errado")
       let diff = ((targetAng - st.ang + 540) % 360) - 180;
       st.ang += diff * SPEED;
 
@@ -885,7 +837,6 @@ applyTextContent(); // roda de novo pra pegar nav.logo duplicado no footer
   requestAnimationFrame(loop);
 })();
 
-// ---------- Reveal on scroll ----------
 (function(){
   const els = document.querySelectorAll('.reveal');
   const io = new IntersectionObserver((entries)=>{
@@ -894,7 +845,6 @@ applyTextContent(); // roda de novo pra pegar nav.logo duplicado no footer
   els.forEach(el=>io.observe(el));
 })();
 
-// ---------- Accordions (funciona também pros itens montados via JS) ----------
 document.addEventListener('click', function(e){
   const q = e.target.closest('.acc-q');
   if(!q) return;
