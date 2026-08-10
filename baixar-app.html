@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-br">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KYVENZA | Baixar o app</title>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#0a0a0a"/>
+<link rel="icon" href="assets/icons/favicon.ico"/>
+<link rel="apple-touch-icon" href="assets/icons/icon-180.png"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/kyvenza.css"/>
+</head>
+<body class="min-h-screen px-6 py-10">
+
+  <div class="max-w-md mx-auto">
+    <div class="flex items-center gap-2 mb-8">
+      <img src="assets/logo.png" class="w-8 h-8 rounded-full"/>
+      <span class="font-display font-bold text-lg gradient-text">KYVENZA</span>
+    </div>
+
+    <h1 class="font-display text-2xl font-bold mb-2">Instalar o app</h1>
+    <p class="text-sm text-[#8b9284] mb-8">Leva menos de 1 minuto. Escolha seu celular abaixo.</p>
+
+    <div class="flex gap-2 mb-6">
+      <button id="btn-android" class="flex-1 font-mono text-sm py-2.5 rounded-lg font-semibold transition-colors" style="background: var(--accent); color: var(--accent-ink)">ANDROID</button>
+      <button id="btn-ios" class="flex-1 font-mono text-sm py-2.5 rounded-lg font-semibold border transition-colors" style="border-color: var(--border); color: var(--text-muted)">IPHONE</button>
+    </div>
+
+    <div id="passos-android" class="space-y-4">
+      <div class="glass-card p-4 flex gap-4 items-start">
+        <span class="font-display font-bold text-xl shrink-0" style="color: var(--accent)">1</span>
+        <div>
+          <p class="font-display font-semibold mb-1">Abra no Chrome</p>
+          <p class="text-sm" style="color: var(--text-muted)">Toque no botão abaixo pra abrir a tela de entrada no navegador Chrome.</p>
+        </div>
+      </div>
+      <div class="glass-card p-4 flex gap-4 items-start">
+        <span class="font-display font-bold text-xl shrink-0" style="color: var(--accent)">2</span>
+        <div>
+          <p class="font-display font-semibold mb-1">Toque nos 3 pontinhos</p>
+          <p class="text-sm" style="color: var(--text-muted)">Ícone (⋮) no canto superior direito do navegador.</p>
+        </div>
+      </div>
+      <div class="glass-card p-4 flex gap-4 items-start">
+        <span class="font-display font-bold text-xl shrink-0" style="color: var(--accent)">3</span>
+        <div>
+          <p class="font-display font-semibold mb-1">Toque em "Instalar app"</p>
+          <p class="text-sm" style="color: var(--text-muted)">Pode aparecer como "Adicionar à tela inicial", dependendo da versão do Chrome.</p>
+        </div>
+      </div>
+      <div class="glass-card p-4 flex gap-4 items-start">
+        <span class="font-display font-bold text-xl shrink-0" style="color: var(--accent)">4</span>
+        <div>
+          <p class="font-display font-semibold mb-1">Pronto!</p>
+          <p class="text-sm" style="color: var(--text-muted)">O ícone do Kyvenza aparece na sua tela inicial, igual qualquer outro app.</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="passos-ios" class="hidden space-y-4">
+      <div class="glass-card p-4 flex gap-4 items-start">
+        <span class="font-display font-bold text-xl shrink-0" style="color: var(--accent)">1</span>
+        <div>
+          <p class="font-display font-semibold mb-1">Abra no Safari</p>
+          <p class="text-sm" style="color: var(--text-muted)">Precisa ser o Safari — outros navegadores no iPhone não conseguem instalar. Toque no botão abaixo.</p>
+        </div>
+      </div>
+      <div class="glass-card p-4 flex gap-4 items-start">
+        <span class="font-display font-bold text-xl shrink-0" style="color: var(--accent)">2</span>
+        <div>
+          <p class="font-display font-semibold mb-1">Toque em Compartilhar</p>
+          <p class="text-sm" style="color: var(--text-muted)">O ícone do quadrado com uma seta pra cima, na barra do navegador.</p>
+        </div>
+      </div>
+      <div class="glass-card p-4 flex gap-4 items-start">
+        <span class="font-display font-bold text-xl shrink-0" style="color: var(--accent)">3</span>
+        <div>
+          <p class="font-display font-semibold mb-1">"Adicionar à Tela de Início"</p>
+          <p class="text-sm" style="color: var(--text-muted)">Role a lista de opções até achar essa opção e toque nela.</p>
+        </div>
+      </div>
+      <div class="glass-card p-4 flex gap-4 items-start">
+        <span class="font-display font-bold text-xl shrink-0" style="color: var(--accent)">4</span>
+        <div>
+          <p class="font-display font-semibold mb-1">Toque em "Adicionar"</p>
+          <p class="text-sm" style="color: var(--text-muted)">Confirma no canto superior direito — o ícone aparece na tela inicial.</p>
+        </div>
+      </div>
+    </div>
+
+    <a href="entrar.html" class="w-full gradient-cta-hero font-display font-semibold py-3.5 rounded-lg flex items-center justify-center mt-8">
+      ABRIR / ENTRAR
+    </a>
+    <p class="text-xs text-center mt-3" style="color: var(--text-dimmer)">Já instalou? Toque no ícone na sua tela inicial em vez deste botão.</p>
+  </div>
+
+<script>
+  const btnAndroid = document.getElementById("btn-android");
+  const btnIos = document.getElementById("btn-ios");
+  const passosAndroid = document.getElementById("passos-android");
+  const passosIos = document.getElementById("passos-ios");
+
+  function mostrarAndroid() {
+    passosAndroid.classList.remove("hidden");
+    passosIos.classList.add("hidden");
+    btnAndroid.style.background = "var(--accent)";
+    btnAndroid.style.color = "var(--accent-ink)";
+    btnAndroid.style.border = "none";
+    btnIos.style.background = "transparent";
+    btnIos.style.color = "var(--text-muted)";
+    btnIos.style.border = "1px solid var(--border)";
+  }
+
+  function mostrarIos() {
+    passosIos.classList.remove("hidden");
+    passosAndroid.classList.add("hidden");
+    btnIos.style.background = "var(--accent)";
+    btnIos.style.color = "var(--accent-ink)";
+    btnIos.style.border = "none";
+    btnAndroid.style.background = "transparent";
+    btnAndroid.style.color = "var(--text-muted)";
+    btnAndroid.style.border = "1px solid var(--border)";
+  }
+
+  btnAndroid.addEventListener("click", mostrarAndroid);
+  btnIos.addEventListener("click", mostrarIos);
+
+  if (/iphone|ipad|ipod/i.test(navigator.userAgent)) {
+    mostrarIos();
+  } else {
+    mostrarAndroid();
+  }
+</script>
+</body>
+</html>

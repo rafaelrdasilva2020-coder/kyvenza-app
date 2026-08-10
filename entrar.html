@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-br">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KYVENZA | Entrar</title>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#0a0a0a"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Kyvenza"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<link rel="icon" href="assets/icons/favicon.ico"/>
+<link rel="apple-touch-icon" href="assets/icons/icon-180.png"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/kyvenza.css"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center px-6">
+
+  <a href="index.html" class="text-xs text-[#8b9284] mb-8 self-start">← Voltar ao site</a>
+  <img src="assets/logo.png" alt="Kyvenza" class="w-24 h-24 rounded-full mb-6 neon-border-green"/>
+
+  <h1 class="font-display text-2xl font-bold mb-2 text-center">Bem-vindo ao <span class="gradient-text">Kyvenza</span></h1>
+  <p id="subtitulo-login" class="text-sm text-[#8b9284] text-center mb-8 max-w-xs">Entre com o e-mail e a senha da sua assinatura.</p>
+
+  <!-- Formulário de ENTRAR (modo padrão) -->
+  <form id="form-entrar" class="w-full max-w-sm space-y-4">
+    <input
+      type="email"
+      id="entrar-email"
+      required
+      placeholder="seu@email.com"
+      autocomplete="email"
+      class="w-full bg-transparent border-b border-[rgba(255,255,255,0.12)] focus:border-[#76ff03] outline-none py-3 text-[#f2f1ed] placeholder:text-[#8b9284] transition-colors"
+    />
+    <input
+      type="password"
+      id="entrar-senha"
+      required
+      placeholder="Sua senha"
+      autocomplete="current-password"
+      class="w-full bg-transparent border-b border-[rgba(255,255,255,0.12)] focus:border-[#76ff03] outline-none py-3 text-[#f2f1ed] placeholder:text-[#8b9284] transition-colors"
+    />
+    <button
+      type="submit"
+      id="btn-entrar"
+      class="w-full btn-primary font-display font-semibold py-3 rounded-lg flex items-center justify-center gap-2"
+    >
+      <span id="btn-entrar-texto">ENTRAR</span>
+    </button>
+  </form>
+
+  <!-- Formulário de CRIAR SENHA (primeiro acesso) -->
+  <form id="form-criar-senha" class="hidden w-full max-w-sm space-y-4">
+    <input
+      type="email"
+      id="criar-email"
+      required
+      placeholder="seu@email.com (o mesmo da assinatura)"
+      autocomplete="email"
+      class="w-full bg-transparent border-b border-[rgba(255,255,255,0.12)] focus:border-[#76ff03] outline-none py-3 text-[#f2f1ed] placeholder:text-[#8b9284] transition-colors"
+    />
+    <input
+      type="password"
+      id="criar-senha"
+      required
+      minlength="6"
+      placeholder="Crie uma senha (mín. 6 caracteres)"
+      autocomplete="new-password"
+      class="w-full bg-transparent border-b border-[rgba(255,255,255,0.12)] focus:border-[#76ff03] outline-none py-3 text-[#f2f1ed] placeholder:text-[#8b9284] transition-colors"
+    />
+    <input
+      type="password"
+      id="criar-senha-confirmar"
+      required
+      minlength="6"
+      placeholder="Confirme a senha"
+      autocomplete="new-password"
+      class="w-full bg-transparent border-b border-[rgba(255,255,255,0.12)] focus:border-[#76ff03] outline-none py-3 text-[#f2f1ed] placeholder:text-[#8b9284] transition-colors"
+    />
+    <button
+      type="submit"
+      id="btn-criar-senha"
+      class="w-full gradient-cta-hero font-display font-semibold py-3 rounded-lg flex items-center justify-center gap-2"
+    >
+      <span id="btn-criar-senha-texto">CRIAR MINHA SENHA</span>
+    </button>
+  </form>
+
+  <p id="mensagem" class="text-sm text-center mt-6 max-w-xs"></p>
+
+  <button id="btn-alternar-modo" class="text-xs text-[#8b9284] mt-6 underline">Primeiro acesso? Criar minha senha</button>
+
+  <p class="text-xs text-[#8b9284] mt-10 text-center max-w-xs">
+    Ainda não é assinante? <a href="bloqueado.html" class="neon-text-cyan underline">Conheça o Kyvenza AI</a>
+  </p>
+
+<script src="js/supabase-client.js"></script>
+<script>
+  // Registra o Service Worker — necessário pro navegador considerar o site
+  // "instalável" (Chrome/Android) e pra funcionar offline/cache.
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("sw.js").catch((err) => {
+        console.error("Falha ao registrar o Service Worker:", err);
+      });
+    });
+  }
+
+  // Se já existe sessão ativa, manda direto pra home
+  (async () => {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session) window.location.href = "home.html";
+  })();
+
+  const formEntrar = document.getElementById("form-entrar");
+  const formCriarSenha = document.getElementById("form-criar-senha");
+  const subtitulo = document.getElementById("subtitulo-login");
+  const mensagem = document.getElementById("mensagem");
+  const btnAlternar = document.getElementById("btn-alternar-modo");
+
+  let modoCriarSenha = false;
+
+  function limparMensagem() {
+    mensagem.textContent = "";
+    mensagem.className = "text-sm text-center mt-6 max-w-xs";
+  }
+
+  btnAlternar.addEventListener("click", () => {
+    modoCriarSenha = !modoCriarSenha;
+    limparMensagem();
+
+    if (modoCriarSenha) {
+      formEntrar.classList.add("hidden");
+      formCriarSenha.classList.remove("hidden");
+      subtitulo.textContent = "Primeiro acesso? Crie sua senha com o e-mail cadastrado na assinatura.";
+      btnAlternar.textContent = "Já tenho senha? Entrar";
+    } else {
+      formCriarSenha.classList.add("hidden");
+      formEntrar.classList.remove("hidden");
+      subtitulo.textContent = "Entre com o e-mail e a senha da sua assinatura.";
+      btnAlternar.textContent = "Primeiro acesso? Criar minha senha";
+    }
+  });
+
+  formEntrar.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("entrar-email").value.trim();
+    const senha = document.getElementById("entrar-senha").value;
+    const btn = document.getElementById("btn-entrar");
+    const btnTexto = document.getElementById("btn-entrar-texto");
+
+    limparMensagem();
+    btn.disabled = true;
+    btnTexto.innerHTML = '<span class="spinner"></span>';
+
+    const { error } = await supabaseClient.auth.signInWithPassword({ email, password: senha });
+
+    if (error) {
+      mensagem.textContent = "E-mail ou senha incorretos. Se ainda não criou sua senha, use o link abaixo.";
+      mensagem.classList.add("text-red-400");
+      btn.disabled = false;
+      btnTexto.textContent = "ENTRAR";
+      return;
+    }
+
+    window.location.href = "home.html";
+  });
+
+  formCriarSenha.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("criar-email").value.trim();
+    const senha = document.getElementById("criar-senha").value;
+    const senhaConfirmar = document.getElementById("criar-senha-confirmar").value;
+    const btn = document.getElementById("btn-criar-senha");
+    const btnTexto = document.getElementById("btn-criar-senha-texto");
+
+    limparMensagem();
+
+    if (senha !== senhaConfirmar) {
+      mensagem.textContent = "As senhas não coincidem.";
+      mensagem.classList.add("text-red-400");
+      return;
+    }
+
+    btn.disabled = true;
+    btnTexto.innerHTML = '<span class="spinner"></span>';
+
+    const { data, error } = await supabaseClient.auth.signUp({
+      email,
+      password: senha,
+      options: { emailRedirectTo: window.location.origin + window.location.pathname.replace("entrar.html", "home.html") },
+    });
+
+    btn.disabled = false;
+    btnTexto.textContent = "CRIAR MINHA SENHA";
+
+    if (error) {
+      mensagem.textContent = error.message.includes("already registered")
+        ? "Esse e-mail já tem senha criada — use a tela de Entrar."
+        : "Não foi possível criar sua senha: " + error.message;
+      mensagem.classList.add("text-red-400");
+      return;
+    }
+
+    // Se o projeto exige confirmação de e-mail, não vem sessão ainda —
+    // avisa pra checar a caixa de entrada. Se não exige, já loga direto.
+    if (data.session) {
+      window.location.href = "home.html";
+    } else {
+      mensagem.textContent = "Conta criada! Confira seu e-mail (e o spam) pra confirmar — depois é só entrar com sua senha.";
+      mensagem.classList.add("text-[#76ff03]");
+    }
+  });
+</script>
+</body>
+</html>
