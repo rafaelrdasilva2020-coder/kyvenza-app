@@ -17,7 +17,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
 async function exigirSessao() {
   const { data: { session } } = await supabaseClient.auth.getSession();
   if (!session) {
-    window.location.href = "index.html";
+    window.location.href = "entrar.html";
     return null;
   }
   return session.user;
@@ -83,7 +83,7 @@ async function protegerPaginaDoAluno() {
 
 async function sair() {
   await supabaseClient.auth.signOut();
-  window.location.href = "index.html";
+  window.location.href = "entrar.html";
 }
 
 // Registra o service worker do PWA (cache dos arquivos estáticos)
