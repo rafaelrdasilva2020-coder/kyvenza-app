@@ -95,12 +95,12 @@
         <a href="treino.html" class="btn-primary font-display font-semibold py-2.5 px-5 rounded-lg inline-block">VER TREINO</a>
       `;
     } else {
-      subtitulo.textContent = "Você ainda não gerou seu treino deste mês.";
+      subtitulo.textContent = "Você ainda não montou seu treino deste mês.";
       statusEl.innerHTML = `
         <p class="label-mono mb-1" style="color:#00daf3">DISPONÍVEL</p>
-        <h3 class="font-display text-xl font-bold mb-1">Gere seu treino de ${hoje.toLocaleDateString("pt-BR", { month: "long" })}</h3>
-        <p class="text-sm text-[#8b9284] mb-4">Responda 4 perguntas rápidas e a IA monta seu treino personalizado.</p>
-        <a href="questionario.html" class="gradient-cta-hero font-display font-semibold py-2.5 px-5 rounded-lg inline-block">GERAR TREINO</a>
+        <h3 class="font-display text-xl font-bold mb-1">Monte seu treino de ${hoje.toLocaleDateString("pt-BR", { month: "long" })}</h3>
+        <p class="text-sm text-[#8b9284] mb-4">Responda 4 perguntas rápidas e a IA organiza seu plano de treino.</p>
+        <a href="questionario.html" class="gradient-cta-hero font-display font-semibold py-2.5 px-5 rounded-lg inline-block">MONTAR TREINO</a>
       `;
     }
 

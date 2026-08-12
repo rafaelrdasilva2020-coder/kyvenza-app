@@ -21,7 +21,7 @@
   </header>
 
   <main class="px-5 pt-6">
-    <p class="font-mono text-xs text-[#8b9284] tracking-widest mb-1">PROTOCOLO DE OTIMIZAÇÃO</p>
+    <p class="font-mono text-xs text-[#8b9284] tracking-widest mb-1">ORGANIZAÇÃO DE TREINO</p>
     <h1 class="font-display text-2xl font-bold mb-2">AI Trainer</h1>
     <p class="text-sm text-[#8b9284] mb-6">Responda abaixo para a IA montar seu treino deste mês.</p>
 
@@ -86,7 +86,7 @@
       </div>
 
       <button type="submit" id="btn-gerar" class="w-full gradient-cta-hero font-display font-semibold py-3 rounded-lg flex items-center justify-center gap-2">
-        <span id="btn-texto">GERAR TREINO</span>
+        <span id="btn-texto">MONTAR TREINO</span>
       </button>
       <p id="erro" class="text-sm text-red-400 text-center"></p>
     </form>
@@ -124,7 +124,7 @@
     const erroEl = document.getElementById("erro");
     erroEl.textContent = "";
     btn.disabled = true;
-    btnTexto.innerHTML = '<span class="spinner"></span> Gerando com IA...';
+    btnTexto.innerHTML = '<span class="spinner"></span> Organizando com IA...';
 
     const payload = {
       objetivo: document.getElementById("objetivo").value,
@@ -152,7 +152,7 @@
       if (!resp.ok) {
         erroEl.textContent = resultado.erro || "Não foi possível gerar o treino. Tente novamente.";
         btn.disabled = false;
-        btnTexto.textContent = "GERAR TREINO";
+        btnTexto.textContent = "MONTAR TREINO";
         return;
       }
 
@@ -161,7 +161,7 @@
       console.error(err);
       erroEl.textContent = "Erro de conexão. Verifique sua internet e tente novamente.";
       btn.disabled = false;
-      btnTexto.textContent = "GERAR TREINO";
+      btnTexto.textContent = "MONTAR TREINO";
     }
   });
 </script>

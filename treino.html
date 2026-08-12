@@ -106,7 +106,7 @@
 
       if (!session) {
         container.innerHTML = `<div class="video-em-breve">SESSÃO EXPIRADA</div>`;
-        setTimeout(() => { window.location.href = "index.html"; }, 1500);
+        setTimeout(() => { window.location.href = "entrar.html"; }, 1500);
         return;
       }
 
@@ -176,7 +176,7 @@
 
     if (!treino) {
       cabecalho.innerHTML = `<p class="text-sm text-[#8b9284]">Você ainda não gerou o treino deste mês.</p>`;
-      listaEl.innerHTML = `<a href="questionario.html" class="gradient-cta-hero font-display font-semibold py-2.5 px-5 rounded-lg inline-block">GERAR TREINO</a>`;
+      listaEl.innerHTML = `<a href="questionario.html" class="gradient-cta-hero font-display font-semibold py-2.5 px-5 rounded-lg inline-block">MONTAR TREINO</a>`;
       return;
     }
 
